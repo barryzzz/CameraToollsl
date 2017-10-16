@@ -2,6 +2,7 @@ package com.example.lsl.cameratoollsl.widget;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -16,7 +17,7 @@ import java.io.IOException;
  * Created by lsl on 17-10-15.
  */
 
-public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback {
+public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback, Camera.PictureCallback {
     private Context mContext;
 
     private SurfaceHolder mHolder;
@@ -24,9 +25,9 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
     private Camera mCamera;
 
 
-    private Camera.PictureCallback mPictureCallback;
-
     private CallBack mTakePickCallBack;
+    public boolean isFinshTakePick = true; //用于判断相机是否已经拍照完成
+
 
 //    private Point mPoint;
 //    private int r;
@@ -46,22 +47,8 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
         mHolder = getHolder();
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        mPictureCallback = new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                try {
-                    String path = FileUtils.savePic(data);
-                    if (mTakePickCallBack != null) {
-                        mTakePickCallBack.success(path);
-                    }
-//                    FileUtils.saveCirclePic(data, mPoint, r);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    mCamera.startPreview();
-                }
-            }
-        };
+
+
     }
 
 
@@ -71,7 +58,6 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
             mCamera = CameraUtil.getCamera();
             try {
                 mCamera.setPreviewDisplay(mHolder);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -94,9 +80,42 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
+        }
     }
 
+    /**
+     * 拍照回调
+     *
+     * @param bytes
+     * @param camera
+     */
+    @Override
+    public void onPictureTaken(final byte[] bytes, Camera camera) {
+        isFinshTakePick = false;
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String path = FileUtils.savePic(bytes);
+                    if (mTakePickCallBack != null) {
+                        mTakePickCallBack.success(path);
+                    }
+//                    FileUtils.saveCirclePic(data, mPoint, r);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    mCamera.startPreview();
+                    isFinshTakePick = true;
+                }
+            }
+        });
+
+
+    }
 
     /**
      * 设置相机设置
@@ -120,7 +139,7 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
      */
     public void takepick() {
         if (mCamera != null)
-            mCamera.takePicture(null, null, mPictureCallback);
+            mCamera.takePicture(null, null, this);
     }
 
     /**
@@ -156,5 +175,6 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
     public void setTakePickCallBack(CallBack callBack) {
         this.mTakePickCallBack = callBack;
     }
+
 
 }

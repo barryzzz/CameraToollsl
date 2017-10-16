@@ -127,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
                 break;
             case R.id.takepick:
-                mCameraView.takepick();
+                if (mCameraView.isFinshTakePick) //屏蔽多次点击
+                    mCameraView.takepick();
                 break;
             case R.id.capture_add:
                 mCaptureFormView.setZoomOut();
