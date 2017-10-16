@@ -4,19 +4,26 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.media.ExifInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.utils.TimeUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ThumbActivity extends AppCompatActivity implements View.OnClickListener {
@@ -26,16 +33,48 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     private String path;
     private final String TAG = "thumb--->";
 
+    //添加文本
+    private LinearLayout mLinearLayout;
+    private EditText mEditText;
+    private Button mButton;
+    private Handler mHandler;
+
+
+    private final int SHOW_IMG = 1003;
+
+
+    private Bitmap showBitmap;//界面显示的bitmap
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thumb);
 
-        mImageView = (ImageView) findViewById(R.id.big_img);
-        mTextView = (TextView) findViewById(R.id.more_opera);
+        iniview();
 
         ini();
 
+
+        mHandler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message message) {
+                switch (message.what) {
+                    case SHOW_IMG:
+                        showImg();
+                        break;
+                }
+                return false;
+            }
+        });
+
+    }
+
+    private void iniview() {
+        mImageView = (ImageView) findViewById(R.id.big_img);
+        mTextView = (TextView) findViewById(R.id.more_opera);
+        mLinearLayout = (LinearLayout) findViewById(R.id.add_text_layout);
+        mEditText = (EditText) findViewById(R.id.et_add_text);
+        mButton = (Button) findViewById(R.id.btn_add_text);
     }
 
     public void ini() {
@@ -43,9 +82,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
         if (path == null || path.equals("")) {
             return;
         }
-        Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
-        mImageView.setImageBitmap(bitmap);
-
+        showImg();
         mTextView.setOnClickListener(this);
     }
 
@@ -64,6 +101,26 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 builder.create();
                 builder.show();
                 break;
+            case R.id.btn_add_text:
+                final String addtxt = mEditText.getText().toString().trim();
+                if (addtxt == null || addtxt.equals("")) {
+                    Toast.makeText(ThumbActivity.this, "文本不能为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bitmap bitmap = ImgUtil.addText(ThumbActivity.this, path, addtxt); //添加文本
+                        try {
+                            FileUtils.saveFile(bitmap, new File(path)); //重新保存
+                            mHandler.sendEmptyMessage(SHOW_IMG); //通知更新
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                break;
         }
     }
 
@@ -81,8 +138,17 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 builder.show();
                 break;
             case 1:
+                mLinearLayout.setVisibility(View.VISIBLE);
                 break;
         }
+    }
+
+    /**
+     * 显示图片
+     */
+    private void showImg() {
+        Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
+        mImageView.setImageBitmap(bitmap);
     }
 
     private String getExif(String path) {

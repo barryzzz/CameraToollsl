@@ -1,8 +1,10 @@
 package com.example.lsl.cameratoollsl.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -105,5 +107,21 @@ public class ImgUtil {
      */
     public static Bitmap getScale(Bitmap bitmap, int width, int height) {
         return Bitmap.createScaledBitmap(bitmap, width, height, true);
+    }
+
+    /**
+     * 添加文本到图片中去
+     *
+     * @param path
+     * @param txt
+     * @return
+     */
+    public static Bitmap addText(Context context, String path, String txt) {
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.RED);
+        canvas.drawText(txt, ScreenUtils.getScreenWidth(context) / 2, ScreenUtils.getStatusHeight(context) / 2, paint);
+        return bitmap;
     }
 }

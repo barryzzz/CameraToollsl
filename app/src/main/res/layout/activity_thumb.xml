@@ -14,17 +14,41 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:alpha="0.3"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:alpha="0.6"
         android:background="#acacac"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/add_text_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <EditText
+                android:id="@+id/et_add_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="9"/>
+
+            <Button
+                android:id="@+id/btn_add_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="添加"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/more_opera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="更多操作"
-            android:textColor="#ffffff"/>
+            android:textColor="#000000"/>
     </LinearLayout>
 
 

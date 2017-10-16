@@ -30,7 +30,7 @@ public class FileUtils {
         }
         File file = new File(pics, System.currentTimeMillis() + ".jpg");
         Log.e("info---ssssss->", file.getAbsolutePath());
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
+//        FileOutputStream fileOutputStream = new FileOutputStream(file);
 
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         Log.w("info--->", "图片的宽高:" + bitmap.getWidth() + "---:" + bitmap.getHeight());
@@ -39,11 +39,24 @@ public class FileUtils {
 
         Bitmap newBitmap = ImgUtil.setRotate(bitmap, 90f);
 
-        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+        saveFile(newBitmap, file);
+//        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
 
         bitmap.recycle();
         newBitmap.recycle();
 
+        return file.getAbsolutePath();
+    }
+
+    /**
+     * 保存文件
+     *
+     * @param bitmap
+     * @return
+     */
+    public static String saveFile(Bitmap bitmap, File file) throws FileNotFoundException {
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
         return file.getAbsolutePath();
     }
 
