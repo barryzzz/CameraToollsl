@@ -22,6 +22,7 @@ import com.example.lsl.cameratoollsl.utils.ImgUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.widget.CallBack;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
+import com.example.lsl.cameratoollsl.widget.CaptureView;
 
 
 /**
@@ -33,7 +34,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mCapturetextView;//框框选择弹出
     private ImageView mThumbimageView;    //缩略图
     private Button mTakePickbutton;  //拍照
-    private Button mAdd, mDel;
+    private Button mAdd, mDel;  //扩大,缩小
+
+    private CaptureView mCaptureFormView;
 
     private CameraPreView mCameraView;
 
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
+
         iniView();
     }
 
@@ -64,12 +68,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTakePickbutton = (Button) findViewById(R.id.takepick);
         mAdd = (Button) findViewById(R.id.capture_add);
         mDel = (Button) findViewById(R.id.capture_del);
+        mCaptureFormView = (CaptureView) findViewById(R.id.capture_form);
+        mCaptureFormView.setVisibility(View.GONE);
 
         mAdd.setOnClickListener(this);
         mDel.setOnClickListener(this);
         mThumbimageView.setOnClickListener(this);
         mTakePickbutton.setOnClickListener(this);
         mCapturetextView.setOnClickListener(this);
+
 
         /**
          * 设置拍照成功回调
@@ -100,12 +107,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.capture_area:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.ThemeOverlay_Material_Dialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("选择框框形状");
                 builder.setItems(captures, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //do something about capture
+                        doWhich(which);
                     }
                 });
                 builder.create();
@@ -122,10 +130,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mCameraView.takepick();
                 break;
             case R.id.capture_add:
-//                mCaptureView.setZoomOut();
+                mCaptureFormView.setZoomOut();
                 break;
             case R.id.capture_del:
-//                mCaptureView.setZoomIn();
+                mCaptureFormView.setZoomIn();
+                break;
+        }
+    }
+
+    /**
+     * {0:"无", 1:"正方形", 2:"长方形", 3:"圆形"};
+     *
+     * @param which
+     */
+    private void doWhich(int which) {
+        switch (which) {
+            case 0:
+                mCaptureFormView.setVisibility(View.GONE);
+                break;
+            case 1:
+                if (mCaptureFormView.getVisibility() == View.GONE) {
+                    mCaptureFormView.setVisibility(View.VISIBLE);
+                }
+                mCaptureFormView.setDrawCapture(CaptureView.CAPTURE_RECT);
+                break;
+            case 2:
+                if (mCaptureFormView.getVisibility() == View.GONE) {
+                    mCaptureFormView.setVisibility(View.VISIBLE);
+                }
+                mCaptureFormView.setDrawCapture(CaptureView.CAPTURE_LONGRECT);
+                break;
+            case 3:
+                if (mCaptureFormView.getVisibility() == View.GONE) {
+                    mCaptureFormView.setVisibility(View.VISIBLE);
+                }
+                mCaptureFormView.setDrawCapture(CaptureView.CAPTURE_CIRCLE);
                 break;
         }
     }
