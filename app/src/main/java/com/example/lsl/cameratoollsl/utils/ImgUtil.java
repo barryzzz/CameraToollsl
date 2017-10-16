@@ -118,10 +118,24 @@ public class ImgUtil {
      */
     public static Bitmap addText(Context context, String path, String txt) {
         Bitmap bitmap = BitmapFactory.decodeFile(path);
-        Canvas canvas = new Canvas(bitmap);
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(newBitmap);
+        canvas.drawBitmap(bitmap, 0, 0, null); //绘制背景
+
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.RED);
-        canvas.drawText(txt, ScreenUtils.getScreenWidth(context) / 2, ScreenUtils.getStatusHeight(context) / 2, paint);
-        return bitmap;
+        paint.setTextSize(20);
+        canvas.drawText(txt, 150, 150, paint);
+
+
+        canvas.drawBitmap(bitmap, 0, 0, null);
+
+        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.restore();
+
+        bitmap.recycle();
+
+        return newBitmap;
     }
 }

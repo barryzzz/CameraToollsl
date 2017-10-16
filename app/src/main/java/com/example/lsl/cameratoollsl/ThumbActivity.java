@@ -1,8 +1,11 @@
 package com.example.lsl.cameratoollsl;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,8 +43,10 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     private Handler mHandler;
 
 
+    private final int CROP_CODE = 1000;
     private final int SHOW_IMG = 1003;
 
+    private Uri imageUri;
 
     private Bitmap showBitmap;//界面显示的bitmap
 
@@ -61,6 +66,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 switch (message.what) {
                     case SHOW_IMG:
                         showImg();
+                        mLinearLayout.setVisibility(View.GONE);
                         break;
                 }
                 return false;
@@ -75,6 +81,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
         mLinearLayout = (LinearLayout) findViewById(R.id.add_text_layout);
         mEditText = (EditText) findViewById(R.id.et_add_text);
         mButton = (Button) findViewById(R.id.btn_add_text);
+        mButton.setOnClickListener(this);
     }
 
     public void ini() {
@@ -90,7 +97,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.more_opera:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.ThemeOverlay_Material_Dialog);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -140,6 +147,38 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
             case 1:
                 mLinearLayout.setVisibility(View.VISIBLE);
                 break;
+            case 2:
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+                Intent intent = new Intent("com.android.camera.action.CROP");
+                intent.setDataAndType(Uri.fromFile(new File(path)), "image/*");
+//                intent.putExtra("crop", "true");
+                intent.putExtra("aspectX", 1);
+                intent.putExtra("aspectY", 1);
+                intent.putExtra("outputX", options.outWidth);
+                intent.putExtra("outputY", options.outHeight);
+                intent.putExtra("scale", true);
+                intent.putExtra("return-data", false);
+                intent.putExtra("output", Uri.fromFile(new File(path)));
+                intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                intent = Intent.createChooser(intent, "裁剪图片");
+                startActivityForResult(intent, CROP_CODE);
+
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CROP_CODE:
+                    showImg();
+                    break;
+            }
         }
     }
 
