@@ -54,9 +54,10 @@ public class FileUtils {
      * @param bitmap
      * @return
      */
-    public static String saveFile(Bitmap bitmap, File file) throws FileNotFoundException {
+    public static String saveFile(Bitmap bitmap, File file) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+        fileOutputStream.close();
         return file.getAbsolutePath();
     }
 
@@ -87,6 +88,7 @@ public class FileUtils {
         bitmap.recycle();
         newBitmap.recycle();
         bitmap1.recycle();
+        fileOutputStream.close();
     }
 
 

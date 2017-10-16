@@ -184,17 +184,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        mCameraView.stopPreview();
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        mCameraView.startPreview();
-//    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mCameraView.stopPreview();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCameraView.startPreview();
+    }
 //
 //    @Override
 //    protected void onDestroy() {

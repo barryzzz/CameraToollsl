@@ -58,7 +58,7 @@ public class ImgUtil {
         Bitmap bitmap = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        bitmap = BitmapFactory.decodeFile(fileapth, options);
+        bitmap =BitmapFactory.decodeFile(fileapth, options);
         options.inJustDecodeBounds = false;
         int w = options.outWidth;
         int h = options.outHeight;
@@ -73,7 +73,6 @@ public class ImgUtil {
         if (be <= 0) {
             be = 1;
         }
-
         options.inSampleSize = be;
         bitmap = BitmapFactory.decodeFile(fileapth, options);
         bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, heigth, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
