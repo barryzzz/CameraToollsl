@@ -1,4 +1,4 @@
-package com.example.lsl.cameratoollsl.wiget;
+package com.example.lsl.cameratoollsl.widget;
 
 import android.content.Context;
 import android.hardware.Camera;

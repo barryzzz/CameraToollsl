@@ -20,8 +20,8 @@ import android.widget.TextView;
 
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
-import com.example.lsl.cameratoollsl.wiget.CallBack;
-import com.example.lsl.cameratoollsl.wiget.CameraPreView;
+import com.example.lsl.cameratoollsl.widget.CallBack;
+import com.example.lsl.cameratoollsl.widget.CameraPreView;
 
 
 /**

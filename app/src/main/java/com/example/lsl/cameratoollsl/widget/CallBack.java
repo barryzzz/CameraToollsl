@@ -1,4 +1,4 @@
-package com.example.lsl.cameratoollsl.wiget;
+package com.example.lsl.cameratoollsl.widget;
 
 /**
  * Created by lsl on 17-10-15.

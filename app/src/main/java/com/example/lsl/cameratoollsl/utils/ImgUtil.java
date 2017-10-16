@@ -118,8 +118,8 @@ public class ImgUtil {
     public static Bitmap addText(Context context, Bitmap bitmap, String txt) {
         bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         Paint paint = new Paint();
-        paint.setDither(true);
-        paint.setFilterBitmap(true);
+        paint.setDither(true); //采集清晰点
+        paint.setFilterBitmap(true); //过滤
         paint.setColor(Color.RED);
         paint.setTextSize(ScreenUtils.dp2px(context, 30));
 
