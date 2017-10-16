@@ -112,30 +112,23 @@ public class ImgUtil {
     /**
      * 添加文本到图片中去
      *
-     * @param path
      * @param txt
      * @return
      */
-    public static Bitmap addText(Context context, String path, String txt) {
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
-        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(newBitmap);
-        canvas.drawBitmap(bitmap, 0, 0, null); //绘制背景
-
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    public static Bitmap addText(Context context, Bitmap bitmap, String txt) {
+        bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Paint paint = new Paint();
+        paint.setDither(true);
+        paint.setFilterBitmap(true);
         paint.setColor(Color.RED);
-        paint.setTextSize(20);
-        canvas.drawText(txt, 150, 150, paint);
+        paint.setTextSize(ScreenUtils.dp2px(context, 30));
 
+        Canvas canvas = new Canvas(bitmap);
+//        canvas.drawBitmap(bitmap, 0, 0, null);
+        canvas.drawText(txt, bitmap.getWidth() / 2, bitmap.getHeight() / 2, paint);
+//        canvas.save();
+//        canvas.restore();
 
-        canvas.drawBitmap(bitmap, 0, 0, null);
-
-        canvas.save(Canvas.ALL_SAVE_FLAG);
-        canvas.restore();
-
-        bitmap.recycle();
-
-        return newBitmap;
+        return bitmap;
     }
 }

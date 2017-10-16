@@ -67,6 +67,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                     case SHOW_IMG:
                         showImg();
                         mLinearLayout.setVisibility(View.GONE);
+                        mEditText.getText().clear();
                         break;
                 }
                 return false;
@@ -117,7 +118,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Bitmap bitmap = ImgUtil.addText(ThumbActivity.this, path, addtxt); //添加文本
+                        Bitmap bitmap = ImgUtil.addText(ThumbActivity.this, BitmapFactory.decodeFile(path), addtxt); //添加文本
                         try {
                             FileUtils.saveFile(bitmap, new File(path)); //重新保存
                             mHandler.sendEmptyMessage(SHOW_IMG); //通知更新
@@ -132,7 +133,8 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     }
 
     /**
-     * {"图片详细信息", "添加文本", "裁剪图片", "打马赛克"};
+     * {"0：图片详细信息", "1：添加文本", :2：裁剪图片", "3：打马赛克"};
+     * 根据各个动作去相应功能
      *
      * @param which
      */
@@ -150,7 +152,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
             case 2:
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
-                Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+                BitmapFactory.decodeFile(path, options);
                 Intent intent = new Intent("com.android.camera.action.CROP");
                 intent.setDataAndType(Uri.fromFile(new File(path)), "image/*");
 //                intent.putExtra("crop", "true");
@@ -160,11 +162,10 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 intent.putExtra("outputY", options.outHeight);
                 intent.putExtra("scale", true);
                 intent.putExtra("return-data", false);
-                intent.putExtra("output", Uri.fromFile(new File(path)));
+                intent.putExtra("output", Uri.fromFile(new File(path)));//保存到原来的地方去
                 intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
                 intent = Intent.createChooser(intent, "裁剪图片");
                 startActivityForResult(intent, CROP_CODE);
-
                 break;
         }
     }
