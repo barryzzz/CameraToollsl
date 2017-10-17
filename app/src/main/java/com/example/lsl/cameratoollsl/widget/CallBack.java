@@ -5,7 +5,8 @@ package com.example.lsl.cameratoollsl.widget;
  */
 
 public interface CallBack {
-    void success(String path);
 
-    void faild();
+    void success(byte[] data);
+
+    void faild(String e);
 }

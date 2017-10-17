@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -44,8 +45,25 @@ public class ImgUtil {
      * @param rect
      * @return
      */
-    public static Bitmap getRectBitmap(Bitmap bitmap, Rect rect) {
-        return null;
+    public static Bitmap getRectBitmap(Bitmap bitmap, Rect rect, int width, int heigth, int mode) {
+        float picW = bitmap.getWidth();
+        float picH = bitmap.getHeight();
+        //长宽比
+        float wScale = picW / width;
+        float hScale = picH / heigth;
+
+        int cropLeft = (int) (wScale * rect.left);
+        int cropTop = (int) (hScale * rect.top);
+        int cropWidth = (int) (wScale * (rect.right - rect.left));
+        int cropHeigth = (int) (hScale * (rect.bottom - rect.top));
+
+
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropWidth, cropHeigth);
+        if (!bitmap.isRecycled()) {
+            bitmap.recycle();
+        }
+
+        return newBitmap;
     }
 
     /**
@@ -58,7 +76,7 @@ public class ImgUtil {
         Bitmap bitmap = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        bitmap =BitmapFactory.decodeFile(fileapth, options);
+        bitmap = BitmapFactory.decodeFile(fileapth, options);
         options.inJustDecodeBounds = false;
         int w = options.outWidth;
         int h = options.outHeight;

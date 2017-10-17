@@ -96,25 +96,11 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void onPictureTaken(final byte[] bytes, Camera camera) {
         isFinshTakePick = false;
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String path = FileUtils.savePic(bytes);
-                    if (mTakePickCallBack != null) {
-                        mTakePickCallBack.success(path);
-                    }
-//                    FileUtils.saveCirclePic(data, mPoint, r);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    mCamera.startPreview();
-                    isFinshTakePick = true;
-                }
-            }
-        });
-
-
+        if (mTakePickCallBack != null) {
+            mTakePickCallBack.success(bytes);
+            mCamera.startPreview();
+            isFinshTakePick = true;
+        }
     }
 
     /**
@@ -122,6 +108,7 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
      *
      * @param camera
      */
+
     private void setCameraParams(Camera camera) {
         camera.stopPreview();
         Camera.Parameters parameters = camera.getParameters();

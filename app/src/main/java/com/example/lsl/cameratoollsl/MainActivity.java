@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -18,11 +20,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.widget.CallBack;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
 import com.example.lsl.cameratoollsl.widget.CaptureView;
+
+import java.io.File;
+import java.io.IOException;
 
 
 /**
@@ -83,14 +89,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         mCameraView.setTakePickCallBack(new CallBack() {
             @Override
-            public void success(String path) {
-                Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
-                mThumbimageView.setImageBitmap(bitmap);
+            public void success(byte[] data) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                bitmap = ImgUtil.setRotate(bitmap, 90f);
+                Bitmap newBitmap = ImgUtil.getRectBitmap(bitmap, mCaptureFormView.getRect(), mCaptureFormView.getWidth(), mCaptureFormView.getHeight(), 0);
+
+                File pics = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "images");
+                if (!pics.exists()) {
+                    pics.mkdirs();
+                }
+                File file = new File(pics, System.currentTimeMillis() + ".jpg");
+
+
+                String path= null;
+                try {
+                    path = FileUtils.saveFile(newBitmap,file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Bitmap bitmap1 = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
+                mThumbimageView.setImageBitmap(bitmap1);
                 mPath = path;
+
+                newBitmap.recycle();
+
             }
 
             @Override
-            public void faild() {
+            public void faild(String e) {
 
             }
         });
