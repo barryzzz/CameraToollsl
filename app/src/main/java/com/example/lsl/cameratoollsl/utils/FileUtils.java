@@ -62,34 +62,50 @@ public class FileUtils {
     }
 
     /**
-     * 保存圆形区域图片
+     * 保存bitmap
      *
-     * @param data
-     * @param circlepoint
-     * @param r
-     * @throws FileNotFoundException
+     * @param bitmap
+     * @return
      */
-    public static void saveCirclePic(byte[] data, Point circlepoint, int r) throws IOException {
+    public static String saveBitmap(Bitmap bitmap) throws IOException {
         File pics = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "images");
         if (!pics.exists()) {
             pics.mkdirs();
         }
         File file = new File(pics, System.currentTimeMillis() + ".jpg");
-
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-
-        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-
-        Bitmap newBitmap = ImgUtil.getCircleBitmap(bitmap, circlepoint.x, circlepoint.y, r);
-        Bitmap bitmap1 = ImgUtil.setRotate(newBitmap, 90f);
-
-        bitmap1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-
-        bitmap.recycle();
-        newBitmap.recycle();
-        bitmap1.recycle();
-        fileOutputStream.close();
+        String path = saveFile(bitmap, file);
+        return path;
     }
+//
+//    /**
+//     * 保存圆形区域图片
+//     *
+//     * @param data
+//     * @param circlepoint
+//     * @param r
+//     * @throws FileNotFoundException
+//     */
+//    public static void saveCirclePic(byte[] data, Point circlepoint, int r) throws IOException {
+//        File pics = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "images");
+//        if (!pics.exists()) {
+//            pics.mkdirs();
+//        }
+//        File file = new File(pics, System.currentTimeMillis() + ".jpg");
+//
+//        FileOutputStream fileOutputStream = new FileOutputStream(file);
+//
+//        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+//
+//        Bitmap newBitmap = ImgUtil.getCircleBitmap(bitmap, circlepoint.x, circlepoint.y, r);
+//        Bitmap bitmap1 = ImgUtil.setRotate(newBitmap, 90f);
+//
+//        bitmap1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+//
+//        bitmap.recycle();
+//        newBitmap.recycle();
+//        bitmap1.recycle();
+//        fileOutputStream.close();
+//    }
 
 
 }

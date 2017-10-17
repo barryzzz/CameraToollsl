@@ -38,14 +38,55 @@ public class ImgUtil {
     }
 
     /**
-     * 获取一个矩形区域
+     * 获取一个裁剪区域
      *
-     * @param bitmap
+     * @param data
      * @param rect
      * @return
      */
-    public static Bitmap getRectBitmap(Bitmap bitmap, Rect rect) {
-        return null;
+    public static Bitmap getCropBitmap(byte[] data, Rect rect, int preW, int preH, int mode) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        float bw = bitmap.getWidth();
+        float bh = bitmap.getHeight();
+
+        float wScale = bw / preW;
+        float hScale = bh / preH;
+
+        int cropLeft = (int) (rect.left * wScale);
+        int cropTop = (int) (rect.top * hScale);
+        int cropRigth = (int) (rect.width() * wScale);
+        int cropBottom = (int) (rect.height() * hScale);
+
+        Bitmap cropBitmap = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropRigth, cropBottom);
+        if (mode == 1) {
+            //进行圆形处理
+            cropBitmap = getCircleCropBitmap(cropBitmap);
+        }
+        bitmap.recycle();
+
+        return cropBitmap;
+    }
+
+    public static Bitmap getCircleCropBitmap(Bitmap bitmap) {
+        if (bitmap == null) return null;
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+        Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        Canvas canvas = new Canvas(newBitmap);
+        int halfWidth = bitmap.getWidth() / 2;
+        int halfHeight = bitmap.getHeight() / 2;
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+
+        canvas.drawCircle(halfWidth, halfHeight, Math.min(halfWidth, halfHeight), paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+        return newBitmap;
     }
 
     /**
@@ -58,7 +99,7 @@ public class ImgUtil {
         Bitmap bitmap = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        bitmap =BitmapFactory.decodeFile(fileapth, options);
+        bitmap = BitmapFactory.decodeFile(fileapth, options);
         options.inJustDecodeBounds = false;
         int w = options.outWidth;
         int h = options.outHeight;

@@ -106,11 +106,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
+        mCamera.cancelAutoFocus();
+
         mCamera.setDisplayOrientation(90);//预览画面翻转90°
         parameters.setRotation(90); //输出的图片翻转90°
 
         parameters.setPictureSize(1280, 720);
         parameters.setPreviewSize(1280, 720);
+//        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         mCamera.setParameters(parameters);
         mCamera.startPreview();
     }
@@ -120,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.autoFocus(new Camera.AutoFocusCallback() {
             @Override
             public void onAutoFocus(boolean b, Camera camera) {
+
                 isFocus = b;
                 if (b) {
                     mCamera.cancelAutoFocus();
@@ -127,10 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onPictureTaken(byte[] bytes, Camera camera) {
                             try {
-                                String path = FileUtils.savePic(bytes);
-                                mPath = path;
-                                Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
-                                mThumbimageView.setImageBitmap(bitmap);
+                                takePicture2(bytes);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } finally {
@@ -142,6 +143,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+    }
+
+    public void takePicture2(byte[] data) throws IOException {
+        if (mPreView.getCropMode() == CameraPreView.CropMode.NORMAL) {
+            mPath = FileUtils.savePic(data);
+        } else {
+            int mode = 0;
+            if (mPreView.getCropMode() == CameraPreView.CropMode.CIRCLE) {
+                mode = 1;
+            }
+            Bitmap bitmap = ImgUtil.getCropBitmap(data, mPreView.getRect(), mPreView.getWidth(), mPreView.getHeight(), mode);
+            mPath = FileUtils.saveBitmap(bitmap);
+        }
+        Bitmap thumb = ImgUtil.getThumbBitmap(mPath, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
+        mThumbimageView.setImageBitmap(thumb);
     }
 
 
@@ -173,10 +189,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     takePicture();
                 break;
             case R.id.capture_add:
-
+                mPreView.zoomOut();
                 break;
             case R.id.capture_del:
-
+                mPreView.zoomIn();
                 break;
         }
     }
@@ -255,12 +271,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-    }
+//    @Override
+//    public void onWindowFocusChanged(boolean hasFocus) {
+//        View decorView = getWindow().getDecorView();
+//        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//                | View.SYSTEM_UI_FLAG_FULLSCREEN
+//                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+//    }
 }

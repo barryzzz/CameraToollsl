@@ -14,8 +14,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import com.example.lsl.cameratoollsl.SimpleValueAnimator;
-import com.example.lsl.cameratoollsl.SimpleValueAnimatorListener;
-import com.example.lsl.cameratoollsl.ValueAnimatorV14;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 
 
@@ -34,6 +32,8 @@ public class CameraPreView extends SurfaceView {
      * 裁剪区域
      */
     private Rect mRect;
+
+    private Rect mCurrentRect;
     /**
      * 裁剪模式
      */
@@ -44,6 +44,9 @@ public class CameraPreView extends SurfaceView {
     private final String TAG = "info------>surface";
     private int CropWidth;
     private int CropHeigth;
+
+    private int centerX, centerY;
+    private int raduis;
 
     private SimpleValueAnimator mAnimator;
     private final Interpolator DEFAULT_INTERPOLATOR = new DecelerateInterpolator();
@@ -72,8 +75,14 @@ public class CameraPreView extends SurfaceView {
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);
 
-        CropWidth = ScreenUtils.dp2px(mContext, 200f);
+        initdata();
+    }
+
+    private void initdata() {
+        CropWidth = ScreenUtils.dp2px(mContext, 100f);
         CropHeigth = CropWidth;
+
+        raduis = (int) (CropWidth * 0.7);
     }
 
     @Override
@@ -88,6 +97,9 @@ public class CameraPreView extends SurfaceView {
 
         Log.e(TAG, "viewW:" + viewW + " viewH" + viewH);
 
+        centerX = (int) (viewW / 2);
+        centerY = (int) (viewH / 2);
+
     }
 
     @Override
@@ -100,21 +112,21 @@ public class CameraPreView extends SurfaceView {
      * 设置布局位置
      */
     private void setLayout() {
-        if (viewH <= 0 || viewW <= 0) {
+        if (CropWidth <= 0 || CropHeigth <= 0) {
             return;
         }
-        int left = (int) ((viewW - CropWidth) / 2);
-        int top = (int) ((viewH - CropHeigth) / 2);
-        int rigth = left + CropWidth;
-        int bottom = top + CropHeigth;
+        int left = centerX - CropWidth;
+        int top = centerY - CropHeigth;
+        int rigth = centerX + CropWidth;
+        int bottom = centerY + CropHeigth;
         mRect = new Rect(left, top, rigth, bottom);
+        mCurrentRect = mRect;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
-//        drawFrame(canvas);
-        drawRectangle(canvas);
+        super.onDraw(canvas);
+        drawFrame(canvas);
     }
 
     private void drawFrame(Canvas canvas) {
@@ -131,7 +143,7 @@ public class CameraPreView extends SurfaceView {
      * @param canvas
      */
     public void drawRectangle(Canvas canvas) {
-        canvas.drawRect(mRect, mPaint);
+        canvas.drawRect(mCurrentRect, mPaint);
     }
 
     /**
@@ -149,15 +161,41 @@ public class CameraPreView extends SurfaceView {
      * @param canvas
      */
     public void drawCircle(Canvas canvas) {
-//        canvas.drawCircle();
-
-//            canvas.drawRect();
+        int left = centerX - raduis;
+        int top = centerY - raduis;
+        int right = left + raduis;
+        int bottom = top + raduis;
+        mCurrentRect = new Rect(left, top, right, bottom);
+        canvas.drawCircle(centerX, centerY, raduis, mPaint);
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                break;
+            case MotionEvent.ACTION_UP:
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                changePoint(x, y);
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * 改变中心点
+     *
+     * @param x x坐标
+     * @param y y坐标
+     */
+    private void changePoint(int x, int y) {
+        centerX = x;
+        centerY = y;
+        if (mCropMode == CropMode.SQUARE || mCropMode == CropMode.RECTANGLE) {
+            setLayout();
+        }
+        invalidate();
     }
 
 
@@ -184,7 +222,26 @@ public class CameraPreView extends SurfaceView {
      */
     public void setCropMode(CropMode mode) {
         this.mCropMode = mode;
+        centerX = (int) (viewW / 2);
+        centerY = (int) (viewH / 2);
+        initdata();
+        if (this.mCropMode == CropMode.SQUARE) {
+            setLayout();
+        }
+        if (this.mCropMode == CropMode.RECTANGLE) {
+            CropHeigth = (int) (CropWidth * 0.8);
+            setLayout();
+        }
+        invalidate();
 //        recalculateFrameRect(100);
+    }
+
+    /**
+     * 获取当前模式
+     * @return
+     */
+    public CropMode getCropMode() {
+        return mCropMode;
     }
 
     /**
@@ -193,40 +250,44 @@ public class CameraPreView extends SurfaceView {
      * @return
      */
     public Rect getRect() {
-        return mRect;
+        return mCurrentRect;
     }
 
 
-//    private SimpleValueAnimator getAnimator() {
-//        mAnimator = new ValueAnimatorV14(mInterpolator);
-//        return mAnimator;
-//    }
-//
-//    private void recalculateFrameRect(int durationMillis) {
-//        if (mIsAnimating) {
-//            getAnimator().cancelAnimation();
-//        }
-//
-//        SimpleValueAnimator animator = getAnimator();
-//        animator.addAnimatorListener(new SimpleValueAnimatorListener() {
-//            @Override
-//            public void onAnimationStarted() {
-//                mIsAnimating = true;
-//            }
-//
-//            @Override
-//            public void onAnimationUpdated(float scale) {
-//                Log.e(TAG, "动画执行中");
-//                invalidate();
-//            }
-//
-//            @Override
-//            public void onAnimationFinished() {
-//                mIsAnimating = false;
-//                invalidate();
-//            }
-//        });
-//        animator.startAnimation(durationMillis);
-//
-//    }
+    public void zoomOut() {
+        if (mCropMode == CropMode.CIRCLE) {
+            raduis += 4;
+        }
+        if (mCropMode == CropMode.SQUARE) {
+            CropWidth += 3;
+            CropHeigth += 3;
+            setLayout();
+        }
+
+        if (mCropMode == CropMode.RECTANGLE) {
+            CropWidth += 4;
+            CropHeigth += 2;
+            setLayout();
+        }
+        invalidate();
+    }
+
+    public void zoomIn() {
+        if (mCropMode == CropMode.CIRCLE) {
+            raduis -= 4;
+        }
+        if (mCropMode == CropMode.SQUARE) {
+            CropWidth -= 3;
+            CropHeigth -= 3;
+            setLayout();
+        }
+
+        if (mCropMode == CropMode.RECTANGLE) {
+            CropWidth -= 4;
+            CropHeigth -= 2;
+            setLayout();
+        }
+        invalidate();
+    }
+
 }

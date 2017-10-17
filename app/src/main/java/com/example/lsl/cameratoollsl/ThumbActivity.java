@@ -189,7 +189,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     private void showImg() {
 //        Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
         Bitmap bitmap = BitmapFactory.decodeFile(path);
-        bitmap = ImgUtil.getScale(bitmap, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
+//        bitmap = ImgUtil.getScale(bitmap, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
         mImageView.setImageBitmap(bitmap);
     }
 
