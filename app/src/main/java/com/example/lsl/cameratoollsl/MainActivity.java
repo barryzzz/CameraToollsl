@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             try {
                                 String path = FileUtils.savePic(bytes);
                                 Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
-                                mThumbimageView.setImageBitmap(ImgUtil.setRotate(bitmap,90f));
+                                mThumbimageView.setImageBitmap(ImgUtil.setRotate(bitmap, 90f));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } finally {
@@ -212,6 +212,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //faild
                 }
                 break;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mCamera != null) {
+            mCamera.stopPreview();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mCamera != null) {
+            mCamera.startPreview();
         }
     }
 }
