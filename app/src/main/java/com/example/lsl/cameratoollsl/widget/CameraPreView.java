@@ -5,13 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
-
-import java.security.Principal;
-import java.security.PublicKey;
 
 
 /**
@@ -25,7 +21,9 @@ public class CameraPreView extends SurfaceView {
      * 画笔对象
      */
     private Paint mPaint;
-
+    /**
+     * 裁剪区域
+     */
     private Rect mRect;
 
 
@@ -44,6 +42,7 @@ public class CameraPreView extends SurfaceView {
     }
 
     private void initPaint() {
+        mPaint = new Paint();
         mPaint.setColor(Color.GREEN);
         mPaint.setStrokeWidth(3f);
         mPaint.setAntiAlias(true);
@@ -54,13 +53,17 @@ public class CameraPreView extends SurfaceView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        drawFrame(canvas);
+    }
+
+    private void drawFrame(Canvas canvas) {
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event);
     }
-
 
 
     /**

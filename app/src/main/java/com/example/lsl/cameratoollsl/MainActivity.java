@@ -6,44 +6,50 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.lsl.cameratoollsl.utils.CameraUtil;
+import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
-import com.example.lsl.cameratoollsl.widget.CallBack;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
-import com.example.lsl.cameratoollsl.widget.CaptureView;
+
+import java.io.IOException;
 
 
 /**
  * Created by lsl on 17-10-14.
  */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private FrameLayout mCameraFrameLayout;  //预览界面
-    private TextView mCapturetextView;//框框选择弹出
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SurfaceHolder.Callback {
+    private TextView mCapturetextView;//框框选择弹出按钮
     private ImageView mThumbimageView;    //缩略图
-    private Button mTakePickbutton;  //拍照
-    private Button mAdd, mDel;  //扩大,缩小
+    private Button mTakePickbutton;  //拍照按钮
+    private Button mAdd, mDel;  //扩大,缩小按钮
 
-    private CaptureView mCaptureFormView;
+    //预览界面
+    private CameraPreView mPreView;
 
-    private CameraPreView mCameraView;
+    //相机对象
+    private Camera mCamera;
+    private SurfaceHolder mHolder;
 
     private Context mContext;
 
-    private String mPath;
-//    private CaptureView mCaptureView;
+    private boolean isFocus;
+
 
     private final String[] captures = {"无", "正方形", "长方形", "圆形"};
 
@@ -59,17 +65,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void iniView() {
-        mCameraFrameLayout = (FrameLayout) findViewById(R.id.camera);
-//        mCaptureView = (CaptureView) findViewById(R.id.capture);
-
-        mCameraView = (CameraPreView) findViewById(R.id.camera_pre);
+        mPreView = (CameraPreView) findViewById(R.id.camera_pre);
         mCapturetextView = (TextView) findViewById(R.id.capture_area);
         mThumbimageView = (ImageView) findViewById(R.id.thumb);
         mTakePickbutton = (Button) findViewById(R.id.takepick);
         mAdd = (Button) findViewById(R.id.capture_add);
         mDel = (Button) findViewById(R.id.capture_del);
-        mCaptureFormView = (CaptureView) findViewById(R.id.capture_form);
-        mCaptureFormView.setVisibility(View.GONE);
 
         mAdd.setOnClickListener(this);
         mDel.setOnClickListener(this);
@@ -77,29 +78,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mTakePickbutton.setOnClickListener(this);
         mCapturetextView.setOnClickListener(this);
 
+        mHolder = mPreView.getHolder();
+        mHolder.addCallback(this);
+        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        /**
-         * 设置拍照成功回调
-         */
-        mCameraView.setTakePickCallBack(new CallBack() {
-            @Override
-            public void success(String path) {
-                Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
-                mThumbimageView.setImageBitmap(bitmap);
-                mPath = path;
-            }
+    }
 
-            @Override
-            public void faild() {
-
-            }
-        });
-
-
+    private void iniCamera() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, 1000);
+        } else {
+            try {
+                mCamera = CameraUtil.getCamera();
+                mCamera.setPreviewDisplay(mHolder);
+            } catch (Exception e) {
+                Toast.makeText(this, "camera open faild", Toast.LENGTH_SHORT).show();
+                finish();
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void setCameraParams() {
+        if (mCamera == null) {
+            return;
         }
 
+        mCamera.stopPreview();
+        Camera.Parameters parameters = mCamera.getParameters();
+        mCamera.setDisplayOrientation(90);
+        parameters.setRotation(90);
+
+
+        parameters.setPictureSize(1280, 720);
+        parameters.setPreviewSize(1280, 720);
+        mCamera.setParameters(parameters);
+        mCamera.startPreview();
     }
 
 
@@ -113,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //do something about capture
-                        doWhich(which);
                     }
                 });
                 builder.create();
@@ -121,52 +134,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.thumb:
                 Intent intent = new Intent(mContext, ThumbActivity.class);
-                if (mPath != null) {
-                    intent.putExtra("path", mPath);
-                }
+//                if (mPath != null) {
+//                    intent.putExtra("path", mPath);
+//                }
                 startActivity(intent);
                 break;
             case R.id.takepick:
-                if (mCameraView.isFinshTakePick) //屏蔽多次点击
-                    mCameraView.takepick();
+                if (!isFocus)
+                    takePicture();
                 break;
             case R.id.capture_add:
-                mCaptureFormView.setZoomOut();
+
                 break;
             case R.id.capture_del:
-                mCaptureFormView.setZoomIn();
+
                 break;
         }
     }
 
-    /**
-     * {0:"无", 1:"正方形", 2:"长方形", 3:"圆形"};
-     *
-     * @param which
-     */
-    private void doWhich(int which) {
-        switch (which) {
-            case 0:
-                mCaptureFormView.setVisibility(View.GONE);
-                break;
-            case 1:
-                if (mCaptureFormView.getVisibility() == View.GONE) {
-                    mCaptureFormView.setVisibility(View.VISIBLE);
+
+    private void takePicture() {
+        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean b, Camera camera) {
+                isFocus = b;
+                if (b) {
+                    mCamera.cancelAutoFocus();
+                    mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
+                        @Override
+                        public void onPictureTaken(byte[] bytes, Camera camera) {
+                            try {
+                                String path = FileUtils.savePic(bytes);
+                                Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
+                                mThumbimageView.setImageBitmap(ImgUtil.setRotate(bitmap,90f));
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                mCamera.startPreview();
+                            }
+                            isFocus = false;
+                        }
+                    });
                 }
-                mCaptureFormView.setDrawCapture(CaptureView.CAPTURE_RECT);
-                break;
-            case 2:
-                if (mCaptureFormView.getVisibility() == View.GONE) {
-                    mCaptureFormView.setVisibility(View.VISIBLE);
-                }
-                mCaptureFormView.setDrawCapture(CaptureView.CAPTURE_LONGRECT);
-                break;
-            case 3:
-                if (mCaptureFormView.getVisibility() == View.GONE) {
-                    mCaptureFormView.setVisibility(View.VISIBLE);
-                }
-                mCaptureFormView.setDrawCapture(CaptureView.CAPTURE_CIRCLE);
-                break;
+            }
+        });
+    }
+
+
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        iniCamera();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+        setCameraParams();
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
         }
     }
 
@@ -176,31 +206,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (requestCode) {
             case 1000:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    iniCamera();
+                    setCameraParams();
                 } else {
                     //faild
                 }
                 break;
         }
     }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mCameraView.stopPreview();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mCameraView.startPreview();
-    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-////        mCameraView.release();
-//    }
-
-
 }

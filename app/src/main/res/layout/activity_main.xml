@@ -10,19 +10,12 @@
         android:id="@+id/camera"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottom_tool">
+        >
 
         <com.example.lsl.cameratoollsl.widget.CameraPreView
             android:id="@+id/camera_pre"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-
-        <com.example.lsl.cameratoollsl.widget.CaptureView
-            android:id="@+id/capture_form"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
-
 
     </FrameLayout>
 
@@ -64,6 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="90dp"
         android:layout_alignParentBottom="true"
+        android:alpha="0.6"
         android:background="#acacac">
 
         <LinearLayout
@@ -88,9 +82,10 @@
 
             <Button
                 android:id="@+id/takepick"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="拍照"/>
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/take_picture_button_bg"
+                />
         </LinearLayout>
 
         <LinearLayout

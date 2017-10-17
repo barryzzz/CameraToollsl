@@ -122,7 +122,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                         try {
                             FileUtils.saveFile(bitmap, new File(path)); //重新保存
                             mHandler.sendEmptyMessage(SHOW_IMG); //通知更新
-                        } catch (FileNotFoundException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
