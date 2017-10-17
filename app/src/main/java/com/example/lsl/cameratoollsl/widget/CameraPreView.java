@@ -1,36 +1,33 @@
 package com.example.lsl.cameratoollsl.widget;
 
 import android.content.Context;
-import android.hardware.Camera;
-import android.os.Handler;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.view.SurfaceHolder;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 
-import com.example.lsl.cameratoollsl.utils.CameraUtil;
-import com.example.lsl.cameratoollsl.utils.FileUtils;
-
-import java.io.IOException;
+import java.security.Principal;
+import java.security.PublicKey;
 
 
 /**
  * Created by lsl on 17-10-15.
  */
 
-public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback, Camera.PictureCallback {
+public class CameraPreView extends SurfaceView {
     private Context mContext;
 
-    private SurfaceHolder mHolder;
+    /**
+     * 画笔对象
+     */
+    private Paint mPaint;
 
-    private Camera mCamera;
+    private Rect mRect;
 
-
-    private CallBack mTakePickCallBack;
-    public boolean isFinshTakePick = true; //用于判断相机是否已经拍照完成
-
-
-//    private Point mPoint;
-//    private int r;
 
     public CameraPreView(Context context) {
         this(context, null, 0);
@@ -43,138 +40,63 @@ public class CameraPreView extends SurfaceView implements SurfaceHolder.Callback
     public CameraPreView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
+        initPaint();
+    }
 
-        mHolder = getHolder();
-        mHolder.addCallback(this);
-        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-
+    private void initPaint() {
+        mPaint.setColor(Color.GREEN);
+        mPaint.setStrokeWidth(3f);
+        mPaint.setAntiAlias(true);
+        mPaint.setStyle(Paint.Style.STROKE);
     }
 
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        if (mCamera == null) {
-            mCamera = CameraUtil.getCamera();
-            try {
-                mCamera.setPreviewDisplay(mHolder);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        try {
-            mCamera.stopPreview();
-            mCamera.setPreviewDisplay(holder);
-            mCamera.startPreview();
-            setCameraParams(mCamera);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
+    public boolean onTouchEvent(MotionEvent event) {
+        return super.onTouchEvent(event);
     }
 
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.release();
-            mCamera = null;
-        }
-    }
+
 
     /**
-     * 拍照回调
+     * 画长方形
      *
-     * @param bytes
-     * @param camera
+     * @param canvas
      */
-    @Override
-    public void onPictureTaken(final byte[] bytes, Camera camera) {
-        isFinshTakePick = false;
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String path = FileUtils.savePic(bytes);
-                    if (mTakePickCallBack != null) {
-                        mTakePickCallBack.success(path);
-                    }
-//                    FileUtils.saveCirclePic(data, mPoint, r);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    mCamera.startPreview();
-                    isFinshTakePick = true;
-                }
-            }
-        });
+    public void drawRectangle(Canvas canvas) {
+
+        canvas.drawRect(mRect, mPaint);
+    }
 
 
+    /**
+     * 裁剪模式RECTANGLE 长方形，SQUARE正方形，CIRCLE圆形
+     */
+    public enum CropMode {
+        RECTANGLE(0), SQUARE(1), CIRCLE(2), NORMAL(3);
+        private final int ID;
+
+        CropMode(final int id) {
+            this.ID = id;
+        }
+
+        public int getId() {
+            return ID;
+        }
     }
 
     /**
-     * 设置相机设置
+     * 获取矩形区域
      *
-     * @param camera
+     * @return
      */
-    private void setCameraParams(Camera camera) {
-        camera.stopPreview();
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setJpegQuality(100);
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-        camera.cancelAutoFocus();
-
-        camera.setDisplayOrientation(90);
-        camera.setParameters(parameters);
-        camera.startPreview();
+    public Rect getRect() {
+        return mRect;
     }
-
-    /**
-     * 拍照
-     */
-    public void takepick() {
-        if (mCamera != null)
-            mCamera.takePicture(null, null, this);
-    }
-
-    /**
-     * 开始预览
-     */
-    public void startPreview() {
-        if (mCamera != null) {
-            mCamera.startPreview();
-        }
-    }
-
-    /**
-     * 停止预览
-     */
-    public void stopPreview() {
-        if (mCamera != null) {
-            mCamera.stopPreview();
-        }
-    }
-
-    /**
-     * 释放资源
-     */
-    public void release() {
-        if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.release();
-            mCamera = null;
-            mHolder = null;
-        }
-    }
-
-    public void setTakePickCallBack(CallBack callBack) {
-        this.mTakePickCallBack = callBack;
-    }
-
 
 }
