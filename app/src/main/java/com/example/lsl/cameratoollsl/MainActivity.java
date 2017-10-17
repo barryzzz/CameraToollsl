@@ -48,7 +48,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Context mContext;
 
-    private boolean isFocus;
+    private boolean isFocus; //对焦是否完毕
+
+    private String mPath;
 
 
     private final String[] captures = {"无", "正方形", "长方形", "圆形"};
@@ -59,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
-
         iniView();
     }
 
@@ -103,53 +104,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mCamera == null) {
             return;
         }
-
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
-        mCamera.setDisplayOrientation(90);
-        parameters.setRotation(90);
-
+        mCamera.setDisplayOrientation(90);//预览画面翻转90°
+        parameters.setRotation(90); //输出的图片翻转90°
 
         parameters.setPictureSize(1280, 720);
         parameters.setPreviewSize(1280, 720);
         mCamera.setParameters(parameters);
         mCamera.startPreview();
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.capture_area:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("选择框框形状");
-                builder.setItems(captures, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do something about capture
-                    }
-                });
-                builder.create();
-                builder.show();
-                break;
-            case R.id.thumb:
-                Intent intent = new Intent(mContext, ThumbActivity.class);
-//                if (mPath != null) {
-//                    intent.putExtra("path", mPath);
-//                }
-                startActivity(intent);
-                break;
-            case R.id.takepick:
-                if (!isFocus)
-                    takePicture();
-                break;
-            case R.id.capture_add:
-
-                break;
-            case R.id.capture_del:
-
-                break;
-        }
     }
 
 
@@ -165,8 +128,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onPictureTaken(byte[] bytes, Camera camera) {
                             try {
                                 String path = FileUtils.savePic(bytes);
+                                mPath = path;
                                 Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
-                                mThumbimageView.setImageBitmap(ImgUtil.setRotate(bitmap, 90f));
+                                mThumbimageView.setImageBitmap(bitmap);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } finally {
@@ -182,8 +146,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.capture_area:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("选择框框形状");
+                builder.setItems(captures, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //切换裁剪模式
+                        setCropModel(which);
+                    }
+                });
+                builder.create();
+                builder.show();
+                break;
+            case R.id.thumb:
+                Intent intent = new Intent(mContext, ThumbActivity.class);
+                if (mPath != null) {
+                    intent.putExtra("path", mPath);
+                }
+                startActivity(intent);
+                break;
+            case R.id.takepick:
+                if (!isFocus)
+                    takePicture();
+                break;
+            case R.id.capture_add:
+
+                break;
+            case R.id.capture_del:
+
+                break;
+        }
+    }
+
+    /**
+     * 切换裁剪模式
+     *
+     * @param model
+     */
+    private void setCropModel(int model) {
+        switch (model) {
+            case 0:
+                mPreView.setCropMode(CameraPreView.CropMode.NORMAL);
+                break;
+            case 1:
+                mPreView.setCropMode(CameraPreView.CropMode.SQUARE);
+                break;
+            case 2:
+                mPreView.setCropMode(CameraPreView.CropMode.RECTANGLE);
+                break;
+            case 3:
+                mPreView.setCropMode(CameraPreView.CropMode.CIRCLE);
+                break;
+        }
+    }
+
+
+    @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         iniCamera();
+        mPreView.startTimer();
     }
 
     @Override

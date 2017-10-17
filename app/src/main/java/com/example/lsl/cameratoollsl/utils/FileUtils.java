@@ -37,13 +37,13 @@ public class FileUtils {
         //图像翻转
 //        bitmap = ImgUtil.getScale(bitmap, 1080, 1650);
 
-        Bitmap newBitmap = ImgUtil.setRotate(bitmap, 90f);
+//        Bitmap newBitmap = ImgUtil.setRotate(bitmap, 90f);
 
-        saveFile(newBitmap, file);
+        saveFile(bitmap, file);
 //        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
 
         bitmap.recycle();
-        newBitmap.recycle();
+//        newBitmap.recycle();
 
         return file.getAbsolutePath();
     }
