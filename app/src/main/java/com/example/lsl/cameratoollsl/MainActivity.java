@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         iniCamera();
-        mPreView.startTimer();
     }
 
     @Override
@@ -253,5 +252,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mCamera != null) {
             mCamera.startPreview();
         }
+    }
+
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 }

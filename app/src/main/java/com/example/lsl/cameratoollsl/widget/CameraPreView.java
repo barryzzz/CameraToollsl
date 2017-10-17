@@ -10,11 +10,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 
+import com.example.lsl.cameratoollsl.SimpleValueAnimator;
+import com.example.lsl.cameratoollsl.SimpleValueAnimatorListener;
+import com.example.lsl.cameratoollsl.ValueAnimatorV14;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -43,9 +45,11 @@ public class CameraPreView extends SurfaceView {
     private int CropWidth;
     private int CropHeigth;
 
+    private SimpleValueAnimator mAnimator;
+    private final Interpolator DEFAULT_INTERPOLATOR = new DecelerateInterpolator();
+    private Interpolator mInterpolator = DEFAULT_INTERPOLATOR;
+    private boolean mIsAnimating = false;
 
-    private Timer mTimer;
-    private TimerTask mTimerTask;
 
     public CameraPreView(Context context) {
         this(context, null, 0);
@@ -108,9 +112,9 @@ public class CameraPreView extends SurfaceView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+//        super.onDraw(canvas);
 //        drawFrame(canvas);
-//        drawRectangle(canvas);
+        drawRectangle(canvas);
     }
 
     private void drawFrame(Canvas canvas) {
@@ -150,28 +154,6 @@ public class CameraPreView extends SurfaceView {
 //            canvas.drawRect();
     }
 
-    public void startTimer() {
-        mTimer = new Timer();
-        mTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (!getHolder().getSurface().isValid()) {
-                    return;
-                }
-                Canvas canvas = getHolder().lockCanvas();
-                drawRectangle(canvas);
-                getHolder().unlockCanvasAndPost(canvas);
-            }
-        };
-        mTimer.schedule(mTimerTask, 100, 100);
-    }
-
-    public void stopTimer() {
-        if (mTimer != null) {
-            mTimer.cancel();
-            mTimer = null;
-        }
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -202,7 +184,7 @@ public class CameraPreView extends SurfaceView {
      */
     public void setCropMode(CropMode mode) {
         this.mCropMode = mode;
-        invalidate();
+//        recalculateFrameRect(100);
     }
 
     /**
@@ -215,4 +197,36 @@ public class CameraPreView extends SurfaceView {
     }
 
 
+//    private SimpleValueAnimator getAnimator() {
+//        mAnimator = new ValueAnimatorV14(mInterpolator);
+//        return mAnimator;
+//    }
+//
+//    private void recalculateFrameRect(int durationMillis) {
+//        if (mIsAnimating) {
+//            getAnimator().cancelAnimation();
+//        }
+//
+//        SimpleValueAnimator animator = getAnimator();
+//        animator.addAnimatorListener(new SimpleValueAnimatorListener() {
+//            @Override
+//            public void onAnimationStarted() {
+//                mIsAnimating = true;
+//            }
+//
+//            @Override
+//            public void onAnimationUpdated(float scale) {
+//                Log.e(TAG, "动画执行中");
+//                invalidate();
+//            }
+//
+//            @Override
+//            public void onAnimationFinished() {
+//                mIsAnimating = false;
+//                invalidate();
+//            }
+//        });
+//        animator.startAnimation(durationMillis);
+//
+//    }
 }
