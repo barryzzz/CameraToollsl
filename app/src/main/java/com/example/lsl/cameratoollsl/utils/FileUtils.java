@@ -2,12 +2,10 @@ package com.example.lsl.cameratoollsl.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -18,7 +16,7 @@ import java.io.IOException;
 public class FileUtils {
 
     /**
-     * 保存图片并对图片进行旋转
+     * 保存图片
      *
      * @param data
      * @throws IOException
@@ -76,36 +74,6 @@ public class FileUtils {
         String path = saveFile(bitmap, file);
         return path;
     }
-//
-//    /**
-//     * 保存圆形区域图片
-//     *
-//     * @param data
-//     * @param circlepoint
-//     * @param r
-//     * @throws FileNotFoundException
-//     */
-//    public static void saveCirclePic(byte[] data, Point circlepoint, int r) throws IOException {
-//        File pics = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "images");
-//        if (!pics.exists()) {
-//            pics.mkdirs();
-//        }
-//        File file = new File(pics, System.currentTimeMillis() + ".jpg");
-//
-//        FileOutputStream fileOutputStream = new FileOutputStream(file);
-//
-//        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-//
-//        Bitmap newBitmap = ImgUtil.getCircleBitmap(bitmap, circlepoint.x, circlepoint.y, r);
-//        Bitmap bitmap1 = ImgUtil.setRotate(newBitmap, 90f);
-//
-//        bitmap1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-//
-//        bitmap.recycle();
-//        newBitmap.recycle();
-//        bitmap1.recycle();
-//        fileOutputStream.close();
-//    }
 
 
 }

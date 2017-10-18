@@ -6,6 +6,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 相机工具类
  * Created by lsl on 2017/10/13.
@@ -83,6 +86,32 @@ public class CameraUtil {
         return x;
     }
 
+    /**
+     * 获取最佳预览图片分辨率
+     *
+     * @return
+     */
+    public static Camera.Size getPreviewSize(List<Camera.Size> sizes, float screenRatio) {
+        Camera.Size result;
+        List<Camera.Size> temp = new ArrayList<>();
+        for (Camera.Size s : sizes) {
+            float currentRatio = ((float) s.width) / s.height;
+            if (currentRatio - screenRatio == 0) {
+                temp.add(s);
+            }
+        }
+        if (temp.size() <= 0) {
+            for (Camera.Size s : sizes) {
+                float currentRatio = ((float) s.width) / s.height;
+                if (currentRatio == 16f / 9) {
+                    temp.add(s);
+                }
+            }
+        }
+        result = temp.get(temp.size() - 1);
+
+        return result;
+    }
 
 
 }

@@ -146,6 +146,7 @@ public class ImgUtil {
      * @return
      */
     public static Bitmap getScale(Bitmap bitmap, int width, int height) {
+
         return Bitmap.createScaledBitmap(bitmap, width, height, true);
     }
 

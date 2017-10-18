@@ -168,7 +168,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void run() {
                         Bitmap bitmap = BitmapFactory.decodeFile(path);
-                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 10);
+                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 7);
                         try {
                             FileUtils.saveFile(newBitmap, new File(path));
                         } catch (IOException e) {

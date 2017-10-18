@@ -135,6 +135,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (CameraUtil.isAutoFocusSuppored(parameters)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
+
+        List<Camera.Size> sizeList = parameters.getSupportedPictureSizes();
+        for (Camera.Size s : sizeList) {
+            Log.e(TAG, "支持尺寸:" + s.width + "X" + s.height);
+        }
+//        float radio = ScreenUtils.getScreenWidth(mContext) / ScreenUtils.getScreenHeight(mContext);
+//        Log.e(TAG, "屏幕比例:" + radio);
+//        Camera.Size size = CameraUtil.getPreviewSize(sizeList, radio);
+//        Log.e(TAG, "计算后得到比例:" + size.width + " " + size.height);
+//        parameters.setPreviewSize(size.width, size.height);
+//        parameters.setPictureSize(size.width, size.height);
         mCamera.setParameters(parameters);
 
         mCamera.startPreview();

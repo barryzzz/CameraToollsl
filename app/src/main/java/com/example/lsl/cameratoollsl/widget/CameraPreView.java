@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
-import com.example.lsl.cameratoollsl.utils.CameraUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 
 
@@ -76,7 +75,7 @@ public class CameraPreView extends SurfaceView {
         CropWidth = ScreenUtils.dp2px(mContext, 100f);
         CropHeigth = CropWidth;
 
-        raduis = (int) (CropWidth * 0.7);
+        raduis = (int) (CropWidth * 0.9);
     }
 
     @Override
@@ -157,9 +156,11 @@ public class CameraPreView extends SurfaceView {
     public void drawCircle(Canvas canvas) {
         int left = centerX - raduis;
         int top = centerY - raduis;
-        int right = left + raduis;
-        int bottom = top + raduis;
+        //半径需要乘以2,才是完整的宽和高
+        int right = left + 2*raduis;
+        int bottom = top + 2*raduis;
         mCurrentRect = new Rect(left, top, right, bottom);
+        canvas.drawRect(mCurrentRect, mPaint);
         canvas.drawCircle(centerX, centerY, raduis, mPaint);
     }
 
@@ -257,6 +258,10 @@ public class CameraPreView extends SurfaceView {
      */
     public Rect getRect() {
         return mCurrentRect;
+    }
+
+    public int getRaduis() {
+        return raduis;
     }
 
     /**
