@@ -171,4 +171,48 @@ public class ImgUtil {
 
         return bitmap;
     }
+
+    /**
+     * 局部马赛克
+     *
+     * @param bitmap    源图像
+     * @param zoneWidth
+     * @param rect      马赛克区域
+     * @return
+     */
+    public static Bitmap Masic(Bitmap bitmap, int zoneWidth, Rect rect) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+        Canvas canvas = new Canvas(newBitmap);
+        Paint paint = new Paint();
+        int left = rect.left;
+        int top = rect.top;
+        int right = rect.right;
+        int bottom = rect.bottom;
+        //马赛克算法
+        for (int i = left; i < right; i += zoneWidth) {
+            for (int j = top; j < bottom; j += zoneWidth) {
+                int color = bitmap.getPixel(i, j);
+                paint.setColor(color);
+                int gridRight = Math.min(w, i + zoneWidth);
+                int gridBottom = Math.min(h, j + zoneWidth);
+                canvas.drawRect(i, j, gridRight, gridBottom, paint);
+            }
+        }
+        return newBitmap;
+    }
+
+    /**
+     * 全部马赛克
+     *
+     * @param bitmap
+     * @param zoneWidth
+     * @return
+     */
+    public static Bitmap Masic(Bitmap bitmap, int zoneWidth) {
+        return Masic(bitmap, zoneWidth, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
+    }
 }
