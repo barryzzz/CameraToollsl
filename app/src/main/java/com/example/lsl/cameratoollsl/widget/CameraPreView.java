@@ -178,12 +178,31 @@ public class CameraPreView extends SurfaceView {
                     if (mOnTouchFocusListener != null)
                         mOnTouchFocusListener.focus(point);
                 }
+
                 break;
             case MotionEvent.ACTION_UP:
                 if (event.getPointerCount() == 1) {
                     x = (int) event.getX();
                     y = (int) event.getY();
                     changePoint(x, y);
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (mCropMode != CropMode.NORMAL) {
+                    if (event.getPointerCount() == 2) {
+                        double currentDis = ViewUtil.distanceBetweenFingers(event);
+                        if (currentDis > lastDis) {
+                            zoomOut();
+                        } else {
+                            zoomIn();
+                        }
+                    }
+                }
+                break;
+
+            case MotionEvent.ACTION_POINTER_2_DOWN:
+                if (mCropMode != CropMode.NORMAL) {
+                    lastDis = ViewUtil.distanceBetweenFingers(event);
                 }
                 break;
         }
