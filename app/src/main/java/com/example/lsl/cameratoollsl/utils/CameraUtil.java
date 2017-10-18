@@ -30,7 +30,7 @@ public class CameraUtil {
      */
     public static boolean isAutoFocusSuppored(Camera.Parameters context) {
 
-        return false;
+        return context.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
     }
 
     /**
@@ -82,4 +82,7 @@ public class CameraUtil {
         }
         return x;
     }
+
+
+
 }

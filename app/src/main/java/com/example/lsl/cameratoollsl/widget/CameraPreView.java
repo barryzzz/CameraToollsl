@@ -171,14 +171,18 @@ public class CameraPreView extends SurfaceView {
             case MotionEvent.ACTION_DOWN:
                 x = (int) event.getX();
                 y = (int) event.getY();
-                Point point = new Point(x, y);
-                if (mOnTouchFocusListener != null)
-                    mOnTouchFocusListener.focus(point);
+                if (event.getPointerCount() == 1) {
+                    Point point = new Point(x, y);
+                    if (mOnTouchFocusListener != null)
+                        mOnTouchFocusListener.focus(point);
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                x = (int) event.getX();
-                y = (int) event.getY();
-                changePoint(x, y);
+                if (event.getPointerCount() == 1) {
+                    x = (int) event.getX();
+                    y = (int) event.getY();
+                    changePoint(x, y);
+                }
                 break;
         }
         return true;

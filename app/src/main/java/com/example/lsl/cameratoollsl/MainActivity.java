@@ -16,7 +16,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
@@ -102,6 +101,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void iniCamera() {
+        if (!CameraUtil.hasCameraDevices(this)) {
+            Toast.makeText(this, "设备没有可用相机", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, 1000);
         } else {
@@ -121,16 +124,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         mCamera.stopPreview();
-        Camera.Parameters parameters = mCamera.getParameters();
-//        mCamera.cancelAutoFocus();
-
+        mCamera.cancelAutoFocus();
         mCamera.setDisplayOrientation(90);//预览画面翻转90°
-        parameters.setRotation(90); //输出的图片翻转90°
 
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setRotation(90); //输出的图片翻转90°
+        parameters.setJpegQuality(100);
         parameters.setPictureSize(1280, 720);
         parameters.setPreviewSize(1280, 720);
-
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        if (CameraUtil.isAutoFocusSuppored(parameters)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        }
         mCamera.setParameters(parameters);
 
         mCamera.startPreview();
@@ -205,8 +209,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onAutoFocus(boolean success, Camera camera) {
                 Log.e(TAG, "手动对焦成功" + success);
                 Camera.Parameters param = mCamera.getParameters();
-                param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置会自动对焦模式
-                mCamera.setParameters(param);
+                if (CameraUtil.isAutoFocusSuppored(param)) {
+                    param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置会自动对焦模式
+                    mCamera.setParameters(param);
+                }
             }
         });
     }
