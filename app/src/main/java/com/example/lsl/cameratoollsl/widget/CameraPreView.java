@@ -4,16 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 
-import com.example.lsl.cameratoollsl.SimpleValueAnimator;
+import com.example.lsl.cameratoollsl.utils.CameraUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 
 
@@ -47,11 +46,6 @@ public class CameraPreView extends SurfaceView {
 
     private int centerX, centerY;
     private int raduis;
-
-    private SimpleValueAnimator mAnimator;
-    private final Interpolator DEFAULT_INTERPOLATOR = new DecelerateInterpolator();
-    private Interpolator mInterpolator = DEFAULT_INTERPOLATOR;
-    private boolean mIsAnimating = false;
 
 
     public CameraPreView(Context context) {
@@ -171,12 +165,19 @@ public class CameraPreView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        int x;
+        int y;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                x = (int) event.getX();
+                y = (int) event.getY();
+                Point point = new Point(x, y);
+                if (mOnTouchFocusListener != null)
+                    mOnTouchFocusListener.focus(point);
                 break;
             case MotionEvent.ACTION_UP:
-                int x = (int) event.getX();
-                int y = (int) event.getY();
+                x = (int) event.getX();
+                y = (int) event.getY();
                 changePoint(x, y);
                 break;
         }
@@ -238,6 +239,7 @@ public class CameraPreView extends SurfaceView {
 
     /**
      * 获取当前模式
+     *
      * @return
      */
     public CropMode getCropMode() {
@@ -253,7 +255,9 @@ public class CameraPreView extends SurfaceView {
         return mCurrentRect;
     }
 
-
+    /**
+     * 放大
+     */
     public void zoomOut() {
         if (mCropMode == CropMode.CIRCLE) {
             raduis += 4;
@@ -272,6 +276,9 @@ public class CameraPreView extends SurfaceView {
         invalidate();
     }
 
+    /**
+     * 缩小
+     */
     public void zoomIn() {
         if (mCropMode == CropMode.CIRCLE) {
             raduis -= 4;
@@ -290,4 +297,31 @@ public class CameraPreView extends SurfaceView {
         invalidate();
     }
 
+
+    private onTouchFocusListener mOnTouchFocusListener;
+
+    /**
+     * 设置触摸回调
+     *
+     * @param listener
+     */
+    public void setOnTouchFocusListener(onTouchFocusListener listener) {
+        this.mOnTouchFocusListener = listener;
+    }
+
+    /**
+     * 移除触摸回调
+     */
+    public void removeOnTouchFocusListener() {
+        if (this.mOnTouchFocusListener != null) {
+            this.mOnTouchFocusListener = null;
+        }
+    }
+
+    /**
+     * 触摸回调
+     */
+    public interface onTouchFocusListener {
+        void focus(Point point);
+    }
 }

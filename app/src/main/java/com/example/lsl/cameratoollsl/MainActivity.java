@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +15,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +31,8 @@ import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -56,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final String[] captures = {"无", "正方形", "长方形", "圆形"};
 
 
+    private final String TAG = "info----->";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +91,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
+        mPreView.setOnTouchFocusListener(new CameraPreView.onTouchFocusListener() {
+            @Override
+            public void focus(Point point) {
+                Log.e(TAG, "触摸回调了" + point.toString());
+                focusOnTouch(point);
+            }
+        });
+
     }
 
     private void iniCamera() {
@@ -106,15 +122,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mCamera.stopPreview();
         Camera.Parameters parameters = mCamera.getParameters();
-        mCamera.cancelAutoFocus();
+//        mCamera.cancelAutoFocus();
 
         mCamera.setDisplayOrientation(90);//预览画面翻转90°
         parameters.setRotation(90); //输出的图片翻转90°
 
         parameters.setPictureSize(1280, 720);
         parameters.setPreviewSize(1280, 720);
-//        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         mCamera.setParameters(parameters);
+
         mCamera.startPreview();
     }
 
@@ -145,6 +163,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    /**
+     * 拍照
+     *
+     * @param data
+     * @throws IOException
+     */
     public void takePicture2(byte[] data) throws IOException {
         if (mPreView.getCropMode() == CameraPreView.CropMode.NORMAL) {
             mPath = FileUtils.savePic(data);
@@ -160,6 +184,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mThumbimageView.setImageBitmap(thumb);
     }
 
+    /**
+     * 触摸对焦
+     *
+     * @param point
+     */
+    private void focusOnTouch(Point point) {
+        if (mCamera == null) return;
+        mCamera.cancelAutoFocus();
+        Rect rect = CameraUtil.calculateTapArea(point.x, point.y, 1.0f, mPreView.getWidth(), mPreView.getHeight());
+        Log.e(TAG, "对焦区域" + rect.toString());
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        List<Camera.Area> areas = new ArrayList<>();
+        areas.add(new Camera.Area(rect, 800));
+        parameters.setFocusAreas(areas);
+        mCamera.setParameters(parameters);
+        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                Log.e(TAG, "手动对焦成功" + success);
+                Camera.Parameters param = mCamera.getParameters();
+                param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置会自动对焦模式
+                mCamera.setParameters(param);
+            }
+        });
+    }
 
     @Override
     public void onClick(View v) {
