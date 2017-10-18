@@ -22,11 +22,9 @@ import android.widget.Toast;
 
 import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
-import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.utils.TimeUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ThumbActivity extends AppCompatActivity implements View.OnClickListener {
@@ -46,9 +44,6 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     private final int CROP_CODE = 1000;
     private final int SHOW_IMG = 1003;
 
-    private Uri imageUri;
-
-    private Bitmap showBitmap;//界面显示的bitmap
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +161,25 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
                 intent = Intent.createChooser(intent, "裁剪图片");
                 startActivityForResult(intent, CROP_CODE);
+                break;
+            case 3:
+                if (path == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bitmap bitmap = BitmapFactory.decodeFile(path);
+                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 10);
+                        try {
+                            FileUtils.saveFile(newBitmap, new File(path));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (!bitmap.isRecycled()) bitmap.recycle();
+                        mHandler.sendEmptyMessage(SHOW_IMG);
+
+                    }
+                });
+
                 break;
         }
     }
