@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mCapturetextView;//框框选择弹出按钮
     private ImageView mThumbimageView;    //缩略图
     private Button mTakePickbutton;  //拍照按钮
-    private Button mAdd, mDel;  //扩大,缩小按钮
 
     //预览界面
     private CameraPreView mPreView;
@@ -102,11 +101,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCapturetextView = (TextView) findViewById(R.id.capture_area);
         mThumbimageView = (ImageView) findViewById(R.id.thumb);
         mTakePickbutton = (Button) findViewById(R.id.takepick);
-        mAdd = (Button) findViewById(R.id.capture_add);
-        mDel = (Button) findViewById(R.id.capture_del);
 
-        mAdd.setOnClickListener(this);
-        mDel.setOnClickListener(this);
+
         mThumbimageView.setOnClickListener(this);
         mTakePickbutton.setOnClickListener(this);
         mCapturetextView.setOnClickListener(this);
@@ -154,27 +150,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Camera.Parameters parameters = mCamera.getParameters();
         //设置图片和预览方向
-        int orientation = judgeScreenOrientation();
-        if (orientation == Surface.ROTATION_0) {
-            mCamera.setDisplayOrientation(90);//预览画面翻转90°
-            parameters.setRotation(90); //输出的图片翻转90°
-        } else if (orientation == Surface.ROTATION_90) {
-            mCamera.setDisplayOrientation(0);
-            parameters.setRotation(0);
-        } else if (orientation == Surface.ROTATION_180) {
-            mCamera.setDisplayOrientation(180);
-            parameters.setRotation(180);
-        } else if (orientation == Surface.ROTATION_270) {
-            mCamera.setDisplayOrientation(180);
-            parameters.setRotation(180);
-        }
+        int degree = getCameraDisplayOrientation(1);
+        mCamera.setDisplayOrientation(degree);//预览画面翻转
+        parameters.setRotation(degree); //输出的图片翻转
+
         Camera.Size size = parameters.getPictureSize();
         Camera.Size size1 = parameters.getPreviewSize();
         Log.e(TAG, "默认尺寸:getPictureSize:" + size.width + " " + size.height + " getPreviewSize:" + size1.width + " " + size1.height);
 
         parameters.setJpegQuality(100);
-//        parameters.setPictureSize(1280, 720);
-//        parameters.setPreviewSize(1280, 720);
+        parameters.setPictureSize(1280, 720);
+        parameters.setPreviewSize(1280, 720);
         if (CameraUtil.isAutoFocusSuppored(parameters)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             mCamera.cancelAutoFocus();
@@ -195,6 +181,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.setParameters(parameters);
 
         mCamera.startPreview();
+    }
+
+
+    public int getCameraDisplayOrientation(int cameraId) {
+        android.hardware.Camera.CameraInfo info =
+                new android.hardware.Camera.CameraInfo();
+        android.hardware.Camera.getCameraInfo(cameraId, info);
+        int rotation = judgeScreenOrientation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        return result;
     }
 
 
@@ -266,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         List<Camera.Area> areas = new ArrayList<>();
-        areas.add(new Camera.Area(rect, 800));
+        areas.add(new Camera.Area(rect, 400));
         parameters.setFocusAreas(areas);
         mCamera.setParameters(parameters);
         mCamera.autoFocus(new Camera.AutoFocusCallback() {
@@ -276,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Camera.Parameters param = mCamera.getParameters();
                 if (CameraUtil.isAutoFocusSuppored(param)) {
                     param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置会自动对焦模式
+                    mCamera.cancelAutoFocus();
                     mCamera.setParameters(param);
                 }
             }
@@ -308,12 +326,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.takepick:
                 if (!isFocus)
                     takePicture();
-                break;
-            case R.id.capture_add:
-                mPreView.zoomOut();
-                break;
-            case R.id.capture_del:
-                mPreView.zoomIn();
                 break;
         }
     }

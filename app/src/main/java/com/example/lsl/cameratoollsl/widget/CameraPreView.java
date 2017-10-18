@@ -171,6 +171,7 @@ public class CameraPreView extends SurfaceView {
         int x, y;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                //触摸对焦
                 x = (int) event.getX();
                 y = (int) event.getY();
                 if (event.getPointerCount() == 1) {
@@ -180,16 +181,13 @@ public class CameraPreView extends SurfaceView {
                 }
 
                 break;
-            case MotionEvent.ACTION_UP:
-                if (event.getPointerCount() == 1) {
-                    x = (int) event.getX();
-                    y = (int) event.getY();
-                    changePoint(x, y);
-                }
-                break;
             case MotionEvent.ACTION_MOVE:
                 if (mCropMode != CropMode.NORMAL) {
-                    if (event.getPointerCount() == 2) {
+                    if (event.getPointerCount() == 1) {
+                        x = (int) event.getX();
+                        y = (int) event.getY();
+                        changePoint(x, y);
+                    } else if (event.getPointerCount() == 2) {
                         double currentDis = ViewUtil.distanceBetweenFingers(event);
                         if (currentDis > lastDis) {
                             zoomOut();
@@ -289,17 +287,17 @@ public class CameraPreView extends SurfaceView {
      */
     public void zoomOut() {
         if (mCropMode == CropMode.CIRCLE) {
-            raduis += 4;
+            raduis += 2;
         }
         if (mCropMode == CropMode.SQUARE) {
-            CropWidth += 3;
-            CropHeigth += 3;
+            CropWidth += 2;
+            CropHeigth += 2;
             setLayout();
         }
 
         if (mCropMode == CropMode.RECTANGLE) {
-            CropWidth += 4;
-            CropHeigth += 2;
+            CropWidth += 2;
+            CropHeigth += 1;
             setLayout();
         }
         invalidate();
@@ -310,17 +308,17 @@ public class CameraPreView extends SurfaceView {
      */
     public void zoomIn() {
         if (mCropMode == CropMode.CIRCLE) {
-            raduis -= 4;
+            raduis -= 2;
         }
         if (mCropMode == CropMode.SQUARE) {
-            CropWidth -= 3;
-            CropHeigth -= 3;
+            CropWidth -= 2;
+            CropHeigth -= 2;
             setLayout();
         }
 
         if (mCropMode == CropMode.RECTANGLE) {
-            CropWidth -= 4;
-            CropHeigth -= 2;
+            CropWidth -= 2;
+            CropHeigth -= 1;
             setLayout();
         }
         invalidate();

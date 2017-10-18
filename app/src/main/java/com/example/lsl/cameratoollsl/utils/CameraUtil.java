@@ -91,26 +91,10 @@ public class CameraUtil {
      *
      * @return
      */
-    public static Camera.Size getPreviewSize(List<Camera.Size> sizes, float screenRatio) {
-        Camera.Size result;
-        List<Camera.Size> temp = new ArrayList<>();
-        for (Camera.Size s : sizes) {
-            float currentRatio = ((float) s.width) / s.height;
-            if (currentRatio - screenRatio == 0) {
-                temp.add(s);
-            }
-        }
-        if (temp.size() <= 0) {
-            for (Camera.Size s : sizes) {
-                float currentRatio = ((float) s.width) / s.height;
-                if (currentRatio == 16f / 9) {
-                    temp.add(s);
-                }
-            }
-        }
-        result = temp.get(temp.size() - 1);
-
-        return result;
+    public static Camera.Size getPreviewSize(Camera.Parameters parameters, float screenRatio) {
+        Camera.Size defaultPreview = parameters.getPreviewSize();
+        List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+        return null;
     }
 
 
