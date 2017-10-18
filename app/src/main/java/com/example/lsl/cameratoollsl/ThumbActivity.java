@@ -110,7 +110,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(ThumbActivity.this, "文本不能为空", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                mHandler.post(new Runnable() {
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         Bitmap bitmap = ImgUtil.addText(ThumbActivity.this, BitmapFactory.decodeFile(path), addtxt); //添加文本
@@ -121,7 +121,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                             e.printStackTrace();
                         }
                     }
-                });
+                }).start();
 
                 break;
         }
@@ -164,7 +164,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case 3:
                 if (path == null) return;
-                mHandler.post(new Runnable() {
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         Bitmap bitmap = BitmapFactory.decodeFile(path);
@@ -176,9 +176,8 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                         }
                         if (!bitmap.isRecycled()) bitmap.recycle();
                         mHandler.sendEmptyMessage(SHOW_IMG);
-
                     }
-                });
+                }).start();
 
                 break;
         }

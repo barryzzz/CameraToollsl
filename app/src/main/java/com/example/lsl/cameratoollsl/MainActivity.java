@@ -10,6 +10,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -63,12 +65,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private final String TAG = "info----->";
 
+    private Handler mHandler;
+    private final int SHOW_THUMB = 1000;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
         iniView();
+
+        initHandler();
+    }
+
+    private void initHandler() {
+        mHandler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                switch (msg.what) {
+                    case SHOW_THUMB:
+                        mPath = (String) msg.obj;
+                        Bitmap thumb = ImgUtil.getThumbBitmap(mPath, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
+                        mThumbimageView.setImageBitmap(thumb);
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
 
@@ -163,14 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] bytes, Camera camera) {
-                            try {
-                                takePicture2(bytes);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } finally {
-                                mCamera.startPreview();
-                            }
-                            isFocus = false;
+                            takePicture2(bytes);
                         }
                     });
                 }
@@ -184,19 +201,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param data
      * @throws IOException
      */
-    public void takePicture2(byte[] data) throws IOException {
-        if (mPreView.getCropMode() == CameraPreView.CropMode.NORMAL) {
-            mPath = FileUtils.savePic(data);
-        } else {
-            int mode = 0;
-            if (mPreView.getCropMode() == CameraPreView.CropMode.CIRCLE) {
-                mode = 1;
+    public void takePicture2(final byte[] data) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String path;
+                try {
+                    if (mPreView.getCropMode() == CameraPreView.CropMode.NORMAL) {
+                        path = FileUtils.savePic(data);
+                    } else {
+                        int mode = 0;
+                        if (mPreView.getCropMode() == CameraPreView.CropMode.CIRCLE) {
+                            mode = 1;
+                        }
+                        Bitmap bitmap = ImgUtil.getCropBitmap(data, mPreView.getRect(), mPreView.getWidth(), mPreView.getHeight(), mode);
+                        path = FileUtils.saveBitmap(bitmap);
+                    }
+                    Message.obtain(mHandler, SHOW_THUMB, path).sendToTarget();
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                } finally {
+                    mCamera.startPreview();
+                }
+                isFocus = false;
             }
-            Bitmap bitmap = ImgUtil.getCropBitmap(data, mPreView.getRect(), mPreView.getWidth(), mPreView.getHeight(), mode);
-            mPath = FileUtils.saveBitmap(bitmap);
-        }
-        Bitmap thumb = ImgUtil.getThumbBitmap(mPath, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
-        mThumbimageView.setImageBitmap(thumb);
+        }).start();
+
     }
 
     /**
@@ -337,13 +368,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        View decorView = getWindow().getDecorView();
-//        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                | View.SYSTEM_UI_FLAG_FULLSCREEN
-//                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-//    }
 }
