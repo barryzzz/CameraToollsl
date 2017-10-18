@@ -174,7 +174,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        if (!bitmap.isRecycled()) bitmap.recycle();
+                        if (bitmap.isRecycled()) bitmap.recycle();
                         mHandler.sendEmptyMessage(SHOW_IMG);
                     }
                 }).start();

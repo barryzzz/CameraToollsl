@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
+import com.example.lsl.cameratoollsl.utils.ViewUtil;
 
 
 /**
@@ -46,6 +47,7 @@ public class CameraPreView extends SurfaceView {
     private int centerX, centerY;
     private int raduis;
 
+    private double lastDis;//上一次两指之间的距离
 
     public CameraPreView(Context context) {
         this(context, null, 0);
@@ -157,8 +159,8 @@ public class CameraPreView extends SurfaceView {
         int left = centerX - raduis;
         int top = centerY - raduis;
         //半径需要乘以2,才是完整的宽和高
-        int right = left + 2*raduis;
-        int bottom = top + 2*raduis;
+        int right = left + 2 * raduis;
+        int bottom = top + 2 * raduis;
         mCurrentRect = new Rect(left, top, right, bottom);
         canvas.drawRect(mCurrentRect, mPaint);
         canvas.drawCircle(centerX, centerY, raduis, mPaint);
@@ -166,8 +168,7 @@ public class CameraPreView extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int x;
-        int y;
+        int x, y;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 x = (int) event.getX();

@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
@@ -149,21 +150,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         mCamera.stopPreview();
         mCamera.cancelAutoFocus();
-        mCamera.setDisplayOrientation(90);//预览画面翻转90°
+
 
         Camera.Parameters parameters = mCamera.getParameters();
-        parameters.setRotation(90); //输出的图片翻转90°
+        //设置图片和预览方向
+        int orientation = judgeScreenOrientation();
+        if (orientation == Surface.ROTATION_0) {
+            mCamera.setDisplayOrientation(90);//预览画面翻转90°
+            parameters.setRotation(90); //输出的图片翻转90°
+        } else if (orientation == Surface.ROTATION_90) {
+            mCamera.setDisplayOrientation(0);
+            parameters.setRotation(0);
+        } else if (orientation == Surface.ROTATION_180) {
+            mCamera.setDisplayOrientation(180);
+            parameters.setRotation(180);
+        } else if (orientation == Surface.ROTATION_270) {
+            mCamera.setDisplayOrientation(180);
+            parameters.setRotation(180);
+        }
+        Camera.Size size = parameters.getPictureSize();
+        Camera.Size size1 = parameters.getPreviewSize();
+        Log.e(TAG, "默认尺寸:getPictureSize:" + size.width + " " + size.height + " getPreviewSize:" + size1.width + " " + size1.height);
+
         parameters.setJpegQuality(100);
-        parameters.setPictureSize(1280, 720);
-        parameters.setPreviewSize(1280, 720);
+//        parameters.setPictureSize(1280, 720);
+//        parameters.setPreviewSize(1280, 720);
         if (CameraUtil.isAutoFocusSuppored(parameters)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            mCamera.cancelAutoFocus();
         }
 
         List<Camera.Size> sizeList = parameters.getSupportedPictureSizes();
         for (Camera.Size s : sizeList) {
             Log.e(TAG, "支持尺寸:" + s.width + "X" + s.height);
         }
+
+
 //        float radio = ScreenUtils.getScreenWidth(mContext) / ScreenUtils.getScreenHeight(mContext);
 //        Log.e(TAG, "屏幕比例:" + radio);
 //        Camera.Size size = CameraUtil.getPreviewSize(sizeList, radio);
@@ -216,8 +238,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         Bitmap bitmap = ImgUtil.getCropBitmap(data, mPreView.getRect(), mPreView.getWidth(), mPreView.getHeight(), mode);
                         path = FileUtils.saveBitmap(bitmap);
+                        if (bitmap.isRecycled()) bitmap.recycle();
                     }
-                    Message.obtain(mHandler, SHOW_THUMB, path).sendToTarget();
+                    Message.obtain(mHandler, SHOW_THUMB, path).sendToTarget();  //发送消息去更新缩略图
                 } catch (IOException e) {
                     e.printStackTrace();
 
@@ -315,6 +338,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPreView.setCropMode(CameraPreView.CropMode.CIRCLE);
                 break;
         }
+    }
+
+    private int judgeScreenOrientation() {
+        return getWindowManager().getDefaultDisplay().getRotation();
     }
 
 
