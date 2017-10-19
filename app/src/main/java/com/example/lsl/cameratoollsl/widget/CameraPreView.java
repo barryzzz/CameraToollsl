@@ -177,7 +177,7 @@ public class CameraPreView extends SurfaceView {
      * @param canvas
      */
     public void drawCircle(Canvas canvas) {
-        canvas.drawRect(mCurrentRect, mPaint);
+//        canvas.drawRect(mCurrentRect, mPaint);
         canvas.drawCircle(centerX, centerY, raduis, mPaint);
     }
 
