@@ -7,13 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.media.ThumbnailUtils;
 
 /**
+ * 图片工具类
  * Created by lsl on 17-10-15.
  */
 
@@ -39,29 +39,53 @@ public class ImgUtil {
     }
 
     /**
-     * 获取一个矩形区域
+     * 获取一个裁剪区域
      *
-     * @param bitmap
+     * @param data
      * @param rect
      * @return
      */
-    public static Bitmap getRectBitmap(Bitmap bitmap, Rect rect, int width, int heigth, int mode) {
-        float picW = bitmap.getWidth();
-        float picH = bitmap.getHeight();
-        //长宽比
-        float wScale = picW / width;
-        float hScale = picH / heigth;
+    public static Bitmap getCropBitmap(byte[] data, Rect rect, int preW, int preH, int mode) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        float bw = bitmap.getWidth();
+        float bh = bitmap.getHeight();
 
-        int cropLeft = (int) (wScale * rect.left);
-        int cropTop = (int) (hScale * rect.top);
-        int cropWidth = (int) (wScale * (rect.right - rect.left));
-        int cropHeigth = (int) (hScale * (rect.bottom - rect.top));
+        float wScale = bw / preW;
+        float hScale = bh / preH;
 
+        int cropLeft = (int) (rect.left * wScale);
+        int cropTop = (int) (rect.top * hScale);
+        int cropRigth = (int) (rect.width() * wScale);
+        int cropBottom = (int) (rect.height() * hScale);
 
-        Bitmap newBitmap = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropWidth, cropHeigth);
-        if (!bitmap.isRecycled()) {
-            bitmap.recycle();
+        Bitmap cropBitmap = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropRigth, cropBottom);
+        if (mode == 1) {
+            //进行圆形处理
+            cropBitmap = getCircleCropBitmap(cropBitmap);
         }
+        bitmap.recycle();
+
+        return cropBitmap;
+    }
+
+    public static Bitmap getCircleCropBitmap(Bitmap bitmap) {
+        if (bitmap == null) return null;
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+        Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        Canvas canvas = new Canvas(newBitmap);
+        int halfWidth = bitmap.getWidth() / 2;
+        int halfHeight = bitmap.getHeight() / 2;
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+
+        canvas.drawCircle(halfWidth, halfHeight, Math.min(halfWidth, halfHeight), paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        canvas.drawBitmap(bitmap, rect, rect, paint);
 
         return newBitmap;
     }
@@ -123,6 +147,7 @@ public class ImgUtil {
      * @return
      */
     public static Bitmap getScale(Bitmap bitmap, int width, int height) {
+
         return Bitmap.createScaledBitmap(bitmap, width, height, true);
     }
 
@@ -147,5 +172,49 @@ public class ImgUtil {
 //        canvas.restore();
 
         return bitmap;
+    }
+
+    /**
+     * 局部马赛克
+     *
+     * @param bitmap    源图像
+     * @param zoneWidth
+     * @param rect      马赛克区域
+     * @return
+     */
+    public static Bitmap Masic(Bitmap bitmap, int zoneWidth, Rect rect) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+        Canvas canvas = new Canvas(newBitmap);
+        Paint paint = new Paint();
+        int left = rect.left;
+        int top = rect.top;
+        int right = rect.right;
+        int bottom = rect.bottom;
+        //马赛克算法
+        for (int i = left; i < right; i += zoneWidth) {
+            for (int j = top; j < bottom; j += zoneWidth) {
+                int color = bitmap.getPixel(i, j);
+                paint.setColor(color);
+                int gridRight = Math.min(w, i + zoneWidth);
+                int gridBottom = Math.min(h, j + zoneWidth);
+                canvas.drawRect(i, j, gridRight, gridBottom, paint);
+            }
+        }
+        return newBitmap;
+    }
+
+    /**
+     * 全部马赛克
+     *
+     * @param bitmap
+     * @param zoneWidth 马赛克方块的大小
+     * @return
+     */
+    public static Bitmap Masic(Bitmap bitmap, int zoneWidth) {
+        return Masic(bitmap, zoneWidth, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
     }
 }

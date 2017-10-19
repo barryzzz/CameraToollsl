@@ -2,23 +2,22 @@ package com.example.lsl.cameratoollsl.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
+ * 文件工具类
  * Created by lsl on 2017/10/13.
  */
 
 public class FileUtils {
 
     /**
-     * 保存图片并对图片进行旋转
+     * 保存图片
      *
      * @param data
      * @throws IOException
@@ -37,13 +36,13 @@ public class FileUtils {
         //图像翻转
 //        bitmap = ImgUtil.getScale(bitmap, 1080, 1650);
 
-        Bitmap newBitmap = ImgUtil.setRotate(bitmap, 90f);
+//        Bitmap newBitmap = ImgUtil.setRotate(bitmap, 90f);
 
-        saveFile(newBitmap, file);
+        saveFile(bitmap, file);
 //        newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
 
         bitmap.recycle();
-        newBitmap.recycle();
+//        newBitmap.recycle();
 
         return file.getAbsolutePath();
     }
@@ -62,33 +61,19 @@ public class FileUtils {
     }
 
     /**
-     * 保存圆形区域图片
+     * 保存bitmap
      *
-     * @param data
-     * @param circlepoint
-     * @param r
-     * @throws FileNotFoundException
+     * @param bitmap
+     * @return
      */
-    public static void saveCirclePic(byte[] data, Point circlepoint, int r) throws IOException {
+    public static String saveBitmap(Bitmap bitmap) throws IOException {
         File pics = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "images");
         if (!pics.exists()) {
             pics.mkdirs();
         }
         File file = new File(pics, System.currentTimeMillis() + ".jpg");
-
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-
-        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-
-        Bitmap newBitmap = ImgUtil.getCircleBitmap(bitmap, circlepoint.x, circlepoint.y, r);
-        Bitmap bitmap1 = ImgUtil.setRotate(newBitmap, 90f);
-
-        bitmap1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-
-        bitmap.recycle();
-        newBitmap.recycle();
-        bitmap1.recycle();
-        fileOutputStream.close();
+        String path = saveFile(bitmap, file);
+        return path;
     }
 
 
