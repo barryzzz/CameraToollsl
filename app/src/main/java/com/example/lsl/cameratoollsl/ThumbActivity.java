@@ -163,22 +163,24 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 startActivityForResult(intent, CROP_CODE);
                 break;
             case 3:
-                if (path == null) return;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap bitmap = BitmapFactory.decodeFile(path);
-                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 10);
-                        try {
-                            FileUtils.saveFile(newBitmap, new File(path));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (bitmap.isRecycled()) bitmap.recycle();
-                        mHandler.sendEmptyMessage(SHOW_IMG);
-                    }
-                }).start();
-
+//                if (path == null) return;
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Bitmap bitmap = BitmapFactory.decodeFile(path);
+//                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 10);
+//                        try {
+//                            FileUtils.saveFile(newBitmap, new File(path));
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        if (bitmap.isRecycled()) bitmap.recycle();
+//                        mHandler.sendEmptyMessage(SHOW_IMG);
+//                    }
+//                }).start();
+                Intent intent1 = new Intent(this, MasicActivity.class);
+                intent1.putExtra("path", path);
+                startActivity(intent1);
                 break;
         }
     }

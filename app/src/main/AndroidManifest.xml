@@ -31,6 +31,9 @@
             android:name=".ThumbActivity"
             android:theme="@style/FullscreenTheme">
         </activity>
+        <activity
+            android:name=".MasicActivity"
+            android:theme="@style/FullscreenTheme"/>
     </application>
 
 </manifest>
