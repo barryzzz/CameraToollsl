@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 isFocus = b;
                 if (b) {
-                    mCamera.cancelAutoFocus();
+//                    mCamera.cancelAutoFocus();
                     mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] bytes, Camera camera) {
