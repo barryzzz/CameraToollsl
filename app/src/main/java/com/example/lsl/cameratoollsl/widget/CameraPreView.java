@@ -170,6 +170,7 @@ public class CameraPreView extends SurfaceView {
     public boolean onTouchEvent(MotionEvent event) {
         int x, y;
         switch (event.getAction()) {
+
             case MotionEvent.ACTION_DOWN:
                 //触摸对焦
                 x = (int) event.getX();
@@ -178,6 +179,8 @@ public class CameraPreView extends SurfaceView {
                     Point point = new Point(x, y);
                     if (mOnTouchFocusListener != null)
                         mOnTouchFocusListener.focus(point);
+                    if (mCropMode != CropMode.NORMAL)
+                        changePoint(x, y);
                 }
 
                 break;

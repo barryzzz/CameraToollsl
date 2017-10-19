@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.example.lsl.cameratoollsl.utils.CameraUtil;
 import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
+import com.example.lsl.cameratoollsl.utils.SPUtils;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
 
@@ -76,7 +77,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mContext = this;
         iniView();
 
+
         initHandler();
+
+        initData();
+    }
+
+    private void initData() {
+        String path = SPUtils.getPath(mContext);
+        if (path != null && !"".equals(path)) {
+            mPath = path;
+            Bitmap thumb = ImgUtil.getThumbBitmap(mPath, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
+            mThumbimageView.setImageBitmap(thumb);
+        }
     }
 
     private void initHandler() {
@@ -88,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mPath = (String) msg.obj;
                         Bitmap thumb = ImgUtil.getThumbBitmap(mPath, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
                         mThumbimageView.setImageBitmap(thumb);
+                        SPUtils.savePath(mContext, mPath); //保存拍照路径
                         break;
                 }
                 return true;
@@ -317,11 +331,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 builder.show();
                 break;
             case R.id.thumb:
-                Intent intent = new Intent(mContext, ThumbActivity.class);
                 if (mPath != null) {
+                    Intent intent = new Intent(mContext, ThumbActivity.class);
                     intent.putExtra("path", mPath);
+                    startActivity(intent);
                 }
-                startActivity(intent);
                 break;
             case R.id.takepick:
                 if (!isFocus)
