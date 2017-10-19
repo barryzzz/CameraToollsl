@@ -3,6 +3,7 @@ package com.example.lsl.cameratoollsl.utils;
 import android.view.MotionEvent;
 
 /**
+ * view相关工具类
  * Created by lsl on 17-10-15.
  */
 

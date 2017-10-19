@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * 时间工具类
  * Created by lsl on 17-10-15.
  */
 

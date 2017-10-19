@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.media.ThumbnailUtils;
 
 /**
+ * 图片工具类
  * Created by lsl on 17-10-15.
  */
 
@@ -210,7 +211,7 @@ public class ImgUtil {
      * 全部马赛克
      *
      * @param bitmap
-     * @param zoneWidth
+     * @param zoneWidth 马赛克方块的大小
      * @return
      */
     public static Bitmap Masic(Bitmap bitmap, int zoneWidth) {

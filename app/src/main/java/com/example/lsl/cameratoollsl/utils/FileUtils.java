@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
+ * 文件工具类
  * Created by lsl on 2017/10/13.
  */
 

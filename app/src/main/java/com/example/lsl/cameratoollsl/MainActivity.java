@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.example.lsl.cameratoollsl.utils.CameraUtil;
 import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
+import com.example.lsl.cameratoollsl.utils.LogUtil;
 import com.example.lsl.cameratoollsl.utils.SPUtils;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPreView.setOnTouchFocusListener(new CameraPreView.onTouchFocusListener() {
             @Override
             public void focus(Point point) {
-                Log.e(TAG, "触摸回调了" + point.toString());
+                LogUtil.e(TAG, "触摸回调了" + point.toString());
                 focusOnTouch(point);
             }
         });
@@ -185,14 +186,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             mCamera.cancelAutoFocus();
         }
-        Log.e(TAG, "屏幕大小:" + mPreView.getWidth() + "X" + mPreView.getHeight());
+        LogUtil.e(TAG, "屏幕大小:" + mPreView.getWidth() + "X" + mPreView.getHeight());
 
         float ratio = (float) mPreView.getHeight() / mPreView.getWidth();
         Camera.Size size2 = CameraUtil.getPreviewSize(parameters, ratio);
-        Log.e(TAG, "最佳预览大小:" + size2.width + "X" + size2.height);
+        LogUtil.e(TAG, "最佳预览大小:" + size2.width + "X" + size2.height);
 
         Camera.Size size3 = CameraUtil.getPictureSize(parameters, (float) size2.width / size2.height);
-        Log.e(TAG, "最佳图片大小:" + size3.width + "X" + size3.height);
+        LogUtil.e(TAG, "最佳图片大小:" + size3.width + "X" + size3.height);
         parameters.setPreviewSize(size2.width, size2.height);
         parameters.setPictureSize(size3.width, size3.height);
         mCamera.setParameters(parameters);
@@ -302,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mCamera == null) return;
         mCamera.cancelAutoFocus();
         Rect rect = CameraUtil.calculateTapArea(point.x, point.y, 1.0f, mPreView.getWidth(), mPreView.getHeight());
-        Log.e(TAG, "对焦区域" + rect.toString());
+        LogUtil.e(TAG, "对焦区域" + rect.toString());
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         List<Camera.Area> areas = new ArrayList<>();
@@ -312,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.autoFocus(new Camera.AutoFocusCallback() {
             @Override
             public void onAutoFocus(boolean success, Camera camera) {
-                Log.e(TAG, "手动对焦成功" + success);
+                LogUtil.e(TAG, "手动对焦成功" + success);
                 Camera.Parameters param = mCamera.getParameters();
                 if (CameraUtil.isAutoFocusSuppored(param)) {
                     param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置会自动对焦模式

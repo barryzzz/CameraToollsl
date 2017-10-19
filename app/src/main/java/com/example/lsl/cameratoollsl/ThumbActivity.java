@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
+import com.example.lsl.cameratoollsl.utils.LogUtil;
 import com.example.lsl.cameratoollsl.utils.TimeUtils;
 
 import java.io.File;
@@ -168,7 +168,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void run() {
                         Bitmap bitmap = BitmapFactory.decodeFile(path);
-                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 7);
+                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 10);
                         try {
                             FileUtils.saveFile(newBitmap, new File(path));
                         } catch (IOException e) {
@@ -219,10 +219,10 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
             if (TAG_DATETIME == null || TAG_DATETIME.equals("")) {
                 TAG_DATETIME = TimeUtils.pareTime(file.lastModified());
             }
-            Log.i(TAG, "拍摄时间:" + TAG_DATETIME);
-            Log.i(TAG, "图片高度:" + TAG_IMAGE_LENGTH);
-            Log.i(TAG, "图片宽度:" + TAG_IMAGE_WIDTH);
-            Log.e(TAG, file.length() + "");
+            LogUtil.i(TAG, "拍摄时间:" + TAG_DATETIME);
+            LogUtil.i(TAG, "图片高度:" + TAG_IMAGE_LENGTH);
+            LogUtil.i(TAG, "图片宽度:" + TAG_IMAGE_WIDTH);
+            LogUtil.e(TAG, file.length() + "");
             stringBuffer.append("拍摄时间:").append(TAG_DATETIME).append("\n")
                     .append("文件大小:").append(file.length() / 1024f / 1024f).append("M").append("\n")
                     .append("像素:" + TAG_IMAGE_LENGTH + "x" + TAG_IMAGE_WIDTH).append("\n")

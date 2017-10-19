@@ -116,6 +116,7 @@ public class CameraUtil {
     }
 
     /**
+     * 获取最佳分辨率
      *
      * @param sizes
      * @param defalutSize

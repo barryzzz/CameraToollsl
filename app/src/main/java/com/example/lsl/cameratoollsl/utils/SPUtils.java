@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * 文件临时配置文件
+ * 临时配置文件工具类
  * Created by Administrator on 2017/10/18.
  */
 

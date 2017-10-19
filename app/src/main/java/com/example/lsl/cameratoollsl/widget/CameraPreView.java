@@ -8,10 +8,10 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
+import com.example.lsl.cameratoollsl.utils.LogUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.utils.ViewUtil;
 
@@ -98,7 +98,7 @@ public class CameraPreView extends SurfaceView {
         viewW = w - getPaddingLeft() - getPaddingRight();
         viewH = h - getPaddingTop() - getPaddingBottom();
 
-        Log.e(TAG, "viewW:" + viewW + " viewH" + viewH);
+        LogUtil.e(TAG, "viewW:" + viewW + " viewH" + viewH);
 
         centerX = (int) (viewW / 2);
         centerY = (int) (viewH / 2);
