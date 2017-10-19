@@ -28,11 +28,15 @@ public class CameraPreView extends SurfaceView {
      */
     private Paint mPaint;
     /**
-     * 裁剪区域
+     * 当前裁剪区
      */
-    private Rect mRect;
-
     private Rect mCurrentRect;
+
+    /**
+     * 限制区域
+     */
+    private Rect mLimitReact;
+
     /**
      * 裁剪模式
      */
@@ -44,10 +48,13 @@ public class CameraPreView extends SurfaceView {
     private int CropWidth;
     private int CropHeigth;
 
-    private int centerX, centerY;
-    private int raduis;
-
+    private int centerX, centerY; //中心点坐标
+    private int raduis; //圆的半径
+    private int MIN_W = 10;//最小范围
     private double lastDis;//上一次两指之间的距离
+
+    private onTouchFocusListener mOnTouchFocusListener;
+
 
     public CameraPreView(Context context) {
         this(context, null, 0);
@@ -77,7 +84,8 @@ public class CameraPreView extends SurfaceView {
         CropWidth = ScreenUtils.dp2px(mContext, 100f);
         CropHeigth = CropWidth;
 
-        raduis = (int) (CropWidth * 0.9);
+//        raduis = (int) (CropWidth * 0.9);
+        raduis = CropWidth;
     }
 
     @Override
@@ -95,6 +103,7 @@ public class CameraPreView extends SurfaceView {
         centerX = (int) (viewW / 2);
         centerY = (int) (viewH / 2);
 
+        mLimitReact = new Rect(0, 0, (int) viewW, (int) viewH);
     }
 
     @Override
@@ -107,15 +116,27 @@ public class CameraPreView extends SurfaceView {
      * 设置布局位置
      */
     private void setLayout() {
-        if (CropWidth <= 0 || CropHeigth <= 0) {
+        if (CropWidth <= 0 || CropHeigth <= 0 || raduis <= 0) {
             return;
         }
-        int left = centerX - CropWidth;
-        int top = centerY - CropHeigth;
-        int rigth = centerX + CropWidth;
-        int bottom = centerY + CropHeigth;
-        mRect = new Rect(left, top, rigth, bottom);
-        mCurrentRect = mRect;
+        if (mCropMode == CropMode.NORMAL) return;
+        int left, top, right, bottom;
+        if (mCropMode == CropMode.CIRCLE) {
+            left = centerX - raduis;
+            top = centerY - raduis;
+            right = left + 2 * raduis;
+            bottom = top + 2 * raduis;
+        } else {
+            left = centerX - CropWidth;
+            top = centerY - CropHeigth;
+            right = centerX + CropWidth;
+            bottom = centerY + CropHeigth;
+        }
+        mCurrentRect = new Rect(left, top, right, bottom);
+
+        checkLimitMove();
+
+
     }
 
     @Override
@@ -156,12 +177,6 @@ public class CameraPreView extends SurfaceView {
      * @param canvas
      */
     public void drawCircle(Canvas canvas) {
-        int left = centerX - raduis;
-        int top = centerY - raduis;
-        //半径需要乘以2,才是完整的宽和高
-        int right = left + 2 * raduis;
-        int bottom = top + 2 * raduis;
-        mCurrentRect = new Rect(left, top, right, bottom);
         canvas.drawRect(mCurrentRect, mPaint);
         canvas.drawCircle(centerX, centerY, raduis, mPaint);
     }
@@ -219,12 +234,39 @@ public class CameraPreView extends SurfaceView {
     private void changePoint(int x, int y) {
         centerX = x;
         centerY = y;
-        if (mCropMode == CropMode.SQUARE || mCropMode == CropMode.RECTANGLE) {
-            setLayout();
-        }
+        setLayout();
         invalidate();
     }
 
+    /**
+     * 检查边界
+     */
+    private void checkLimitMove() {
+        int diff = mCurrentRect.left - mLimitReact.left;
+        if (diff < 0) {
+            mCurrentRect.left -= diff;
+            mCurrentRect.right -= diff;
+            centerX -= diff;
+        }
+        diff = mCurrentRect.right - mLimitReact.right;
+        if (diff > 0) {
+            mCurrentRect.left -= diff;
+            mCurrentRect.right -= diff;
+            centerX -= diff;
+        }
+        diff = mCurrentRect.top - mLimitReact.top;
+        if (diff < 0) {
+            mCurrentRect.top -= diff;
+            mCurrentRect.bottom -= diff;
+            centerY -= diff;
+        }
+        diff = mCurrentRect.bottom - mLimitReact.bottom;
+        if (diff > 0) {
+            mCurrentRect.top -= diff;
+            mCurrentRect.bottom -= diff;
+            centerY -= diff;
+        }
+    }
 
     /**
      * 裁剪模式RECTANGLE 长方形，SQUARE正方形，CIRCLE圆形,NORMAL 无
@@ -252,6 +294,9 @@ public class CameraPreView extends SurfaceView {
         centerX = (int) (viewW / 2);
         centerY = (int) (viewH / 2);
         initdata();
+        if (this.mCropMode == CropMode.CIRCLE) {
+            setLayout();
+        }
         if (this.mCropMode == CropMode.SQUARE) {
             setLayout();
         }
@@ -260,7 +305,6 @@ public class CameraPreView extends SurfaceView {
             setLayout();
         }
         invalidate();
-//        recalculateFrameRect(100);
     }
 
     /**
@@ -291,16 +335,29 @@ public class CameraPreView extends SurfaceView {
     public void zoomOut() {
         if (mCropMode == CropMode.CIRCLE) {
             raduis += 2;
+            if (2 * raduis >= viewW) {
+                raduis -= 2;
+            }
+            setLayout();
         }
         if (mCropMode == CropMode.SQUARE) {
             CropWidth += 2;
-            CropHeigth += 2;
+            CropHeigth = CropWidth;
+            if (CropWidth * 2 > viewW) {
+                CropWidth -= 2;
+                CropHeigth = CropWidth;
+            }
             setLayout();
         }
 
         if (mCropMode == CropMode.RECTANGLE) {
+
             CropWidth += 2;
             CropHeigth += 1;
+            if (CropWidth * 2 > viewW) {
+                CropWidth -= 2;
+                CropHeigth -= 1;
+            }
             setLayout();
         }
         invalidate();
@@ -312,23 +369,34 @@ public class CameraPreView extends SurfaceView {
     public void zoomIn() {
         if (mCropMode == CropMode.CIRCLE) {
             raduis -= 2;
+            if (2 * raduis <= MIN_W) {
+                raduis += 2;
+            }
+            setLayout();
         }
         if (mCropMode == CropMode.SQUARE) {
+
             CropWidth -= 2;
-            CropHeigth -= 2;
+            CropHeigth = CropWidth;
+            if (CropWidth * 2 <= MIN_W) {
+                CropWidth += 2;
+                CropHeigth = CropWidth;
+            }
             setLayout();
         }
 
         if (mCropMode == CropMode.RECTANGLE) {
             CropWidth -= 2;
             CropHeigth -= 1;
+            if (CropWidth * 2 <= MIN_W) {
+                CropWidth += 2;
+                CropHeigth += 1;
+            }
             setLayout();
         }
         invalidate();
     }
 
-
-    private onTouchFocusListener mOnTouchFocusListener;
 
     /**
      * 设置触摸回调
