@@ -33,6 +33,7 @@ import com.example.lsl.cameratoollsl.utils.SPUtils;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 import com.example.lsl.cameratoollsl.widget.CameraPreView;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isFocus; //对焦是否完毕
 
-    private String mPath;
+    private String mPath;  //图片路径
 
 
     private final String[] captures = {"无", "正方形", "长方形", "圆形"};
@@ -67,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = "info----->";
 
     private Handler mHandler;
-    private final int SHOW_THUMB = 1000;
+
+    private final int SHOW_THUMB = 1000; //更新缩略图通知
 
 
     @Override
@@ -86,6 +88,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initData() {
         String path = SPUtils.getPath(mContext);
         if (path != null && !"".equals(path)) {
+            File file = new File(path);
+            if (!file.exists()) {
+                return;
+            }
             mPath = path;
             Bitmap thumb = ImgUtil.getThumbBitmap(mPath, ScreenUtils.dp2px(mContext, 50), ScreenUtils.dp2px(mContext, 50));
             mThumbimageView.setImageBitmap(thumb);
@@ -168,37 +174,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.setDisplayOrientation(degree);//预览画面翻转
         parameters.setRotation(degree); //输出的图片翻转
 
-        Camera.Size size = parameters.getPictureSize();
-        Camera.Size size1 = parameters.getPreviewSize();
-        Log.e(TAG, "默认尺寸:getPictureSize:" + size.width + " " + size.height + " getPreviewSize:" + size1.width + " " + size1.height);
+//        Camera.Size size = parameters.getPictureSize();
+//        Camera.Size size1 = parameters.getPreviewSize();
+//        Log.e(TAG, "默认尺寸:getPictureSize:" + size.width + " " + size.height + " getPreviewSize:" + size1.width + " " + size1.height);
 
         parameters.setJpegQuality(100);
-        parameters.setPictureSize(1280, 720);
-        parameters.setPreviewSize(1280, 720);
+//        parameters.setPictureSize(1280, 720);
+//        parameters.setPreviewSize(1280, 720);
         if (CameraUtil.isAutoFocusSuppored(parameters)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             mCamera.cancelAutoFocus();
         }
+        Log.e(TAG, "屏幕大小:" + mPreView.getWidth() + "X" + mPreView.getHeight());
 
-        List<Camera.Size> sizeList = parameters.getSupportedPictureSizes();
-        for (Camera.Size s : sizeList) {
-            Log.e(TAG, "支持尺寸:" + s.width + "X" + s.height);
-        }
+        float ratio = (float) mPreView.getHeight() / mPreView.getWidth();
+        Camera.Size size2 = CameraUtil.getPreviewSize(parameters, ratio);
+        Log.e(TAG, "最佳预览大小:" + size2.width + "X" + size2.height);
 
-
-//        float radio = ScreenUtils.getScreenWidth(mContext) / ScreenUtils.getScreenHeight(mContext);
-//        Log.e(TAG, "屏幕比例:" + radio);
-//        Camera.Size size = CameraUtil.getPreviewSize(sizeList, radio);
-//        Log.e(TAG, "计算后得到比例:" + size.width + " " + size.height);
-//        parameters.setPreviewSize(size.width, size.height);
-//        parameters.setPictureSize(size.width, size.height);
+        Camera.Size size3 = CameraUtil.getPictureSize(parameters, (float) size2.width / size2.height);
+        Log.e(TAG, "最佳图片大小:" + size3.width + "X" + size3.height);
+        parameters.setPreviewSize(size2.width, size2.height);
+        parameters.setPictureSize(size3.width, size3.height);
         mCamera.setParameters(parameters);
 
         mCamera.startPreview();
     }
 
-
-    public int getCameraDisplayOrientation(int cameraId) {
+    /**
+     *  预览和图片方向
+     * @param cameraId 启动的相机编号
+     * @return
+     */
+    private int getCameraDisplayOrientation(int cameraId) {
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(cameraId, info);
@@ -228,7 +235,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return result;
     }
 
-
+    /**
+     * 拍照
+     */
     private void takePicture() {
         mCamera.autoFocus(new Camera.AutoFocusCallback() {
             @Override
@@ -249,12 +258,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 拍照
+     * 拍照后图片处理过程
      *
      * @param data
      * @throws IOException
      */
-    public void takePicture2(final byte[] data) {
+    private void takePicture2(final byte[] data) {
         new Thread(new Runnable() {
             @Override
             public void run() {
