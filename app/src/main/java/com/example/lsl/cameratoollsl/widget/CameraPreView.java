@@ -158,7 +158,7 @@ public class CameraPreView extends SurfaceView {
      *
      * @param canvas
      */
-    public void drawRectangle(Canvas canvas) {
+    private void drawRectangle(Canvas canvas) {
         canvas.drawRect(mCurrentRect, mPaint);
     }
 
@@ -167,7 +167,7 @@ public class CameraPreView extends SurfaceView {
      *
      * @param canvas
      */
-    public void clearCanvas(Canvas canvas) {
+    private void clearCanvas(Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
     }
 
@@ -176,7 +176,7 @@ public class CameraPreView extends SurfaceView {
      *
      * @param canvas
      */
-    public void drawCircle(Canvas canvas) {
+    private void drawCircle(Canvas canvas) {
 //        canvas.drawRect(mCurrentRect, mPaint);
         canvas.drawCircle(centerX, centerY, raduis, mPaint);
     }
