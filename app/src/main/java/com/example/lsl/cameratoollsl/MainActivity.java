@@ -17,7 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -168,25 +168,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.stopPreview();
         mCamera.cancelAutoFocus();
 
-
         Camera.Parameters parameters = mCamera.getParameters();
         //设置图片和预览方向
         int degree = getCameraDisplayOrientation(1);
         mCamera.setDisplayOrientation(degree);//预览画面翻转
         parameters.setRotation(degree); //输出的图片翻转
 
-//        Camera.Size size = parameters.getPictureSize();
-//        Camera.Size size1 = parameters.getPreviewSize();
-//        Log.e(TAG, "默认尺寸:getPictureSize:" + size.width + " " + size.height + " getPreviewSize:" + size1.width + " " + size1.height);
-
         parameters.setJpegQuality(100);
-//        parameters.setPictureSize(1280, 720);
-//        parameters.setPreviewSize(1280, 720);
+
         if (CameraUtil.isAutoFocusSuppored(parameters)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-            mCamera.cancelAutoFocus();
         }
-        LogUtil.e(TAG, "屏幕大小:" + mPreView.getWidth() + "X" + mPreView.getHeight());
 
         float ratio = (float) mPreView.getHeight() / mPreView.getWidth();
         Camera.Size size2 = CameraUtil.getPreviewSize(parameters, ratio);
@@ -202,7 +194,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     *  预览和图片方向
+     * 预览和图片方向
+     *
      * @param cameraId 启动的相机编号
      * @return
      */
@@ -243,10 +236,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.autoFocus(new Camera.AutoFocusCallback() {
             @Override
             public void onAutoFocus(boolean b, Camera camera) {
-
                 isFocus = b;
                 if (b) {
-//                    mCamera.cancelAutoFocus();
                     mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] bytes, Camera camera) {
@@ -341,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 builder.show();
                 break;
             case R.id.thumb:
-                if (mPath != null) {
+                if (!TextUtils.isEmpty(mPath)) {
                     Intent intent = new Intent(mContext, ThumbActivity.class);
                     intent.putExtra("path", mPath);
                     startActivity(intent);
@@ -410,6 +401,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     setCameraParams();
                 } else {
                     //faild
+                    Toast.makeText(mContext, "没有授予相机权限,请到程序列表中进行授权", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }

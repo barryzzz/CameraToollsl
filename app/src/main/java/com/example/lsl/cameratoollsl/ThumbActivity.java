@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -83,7 +84,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
 
     public void ini() {
         path = getIntent().getStringExtra("path");
-        if (path == null || path.equals("")) {
+        if (TextUtils.isEmpty(path)) {
             return;
         }
         showImg();
@@ -107,7 +108,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.btn_add_text:
                 final String addtxt = mEditText.getText().toString().trim();
-                if (addtxt == null || addtxt.equals("")) {
+                if (TextUtils.isEmpty(addtxt)) {
                     Toast.makeText(ThumbActivity.this, "文本不能为空", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -138,7 +139,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
         switch (which) {
             case 0:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(getExif(path));
+                builder.setMessage(ImgUtil.getExif(path));
                 builder.create();
                 builder.show();
                 break;
@@ -164,22 +165,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 startActivityForResult(intent, CROP_CODE);
                 break;
             case 3:
-//                if (path == null) return;
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Bitmap bitmap = BitmapFactory.decodeFile(path);
-//                        Bitmap newBitmap = ImgUtil.Masic(bitmap, 10);
-//                        try {
-//                            FileUtils.saveFile(newBitmap, new File(path));
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                        if (bitmap.isRecycled()) bitmap.recycle();
-//                        mHandler.sendEmptyMessage(SHOW_IMG);
-//                    }
-//                }).start();
-                if (path == null) return;
+                if (TextUtils.isEmpty(path)) return;
                 Intent intent1 = new Intent(this, MasicActivity.class);
                 intent1.putExtra("path", path);
                 startActivityForResult(intent1, MASIC_CODE);
@@ -201,7 +187,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                     break;
             }
         }
-        if (path == null) return;    }
+    }
 
     /**
      * 显示图片
@@ -211,32 +197,4 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
         mImageView.setImageBitmap(bitmap);
     }
 
-    private String getExif(String path) {
-        StringBuffer stringBuffer = new StringBuffer();
-        try {
-            ExifInterface exifInterface = new ExifInterface(path);
-
-            String TAG_DATETIME = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
-            String TAG_IMAGE_LENGTH = exifInterface.getAttribute(ExifInterface.TAG_IMAGE_LENGTH);
-            String TAG_IMAGE_WIDTH = exifInterface.getAttribute(ExifInterface.TAG_IMAGE_WIDTH);
-
-            File file = new File(path);
-            if (TAG_DATETIME == null || TAG_DATETIME.equals("")) {
-                TAG_DATETIME = TimeUtils.pareTime(file.lastModified());
-            }
-            LogUtil.i(TAG, "拍摄时间:" + TAG_DATETIME);
-            LogUtil.i(TAG, "图片高度:" + TAG_IMAGE_LENGTH);
-            LogUtil.i(TAG, "图片宽度:" + TAG_IMAGE_WIDTH);
-            LogUtil.e(TAG, file.length() + "");
-            stringBuffer.append("拍摄时间:").append(TAG_DATETIME).append("\n")
-                    .append("文件大小:").append(file.length() / 1024f / 1024f).append("M").append("\n")
-                    .append("像素:" + TAG_IMAGE_LENGTH + "x" + TAG_IMAGE_WIDTH).append("\n")
-                    .append("拍摄路径:" + path);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stringBuffer.toString();
-    }
 }

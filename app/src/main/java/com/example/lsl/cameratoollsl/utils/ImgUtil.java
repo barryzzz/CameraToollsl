@@ -10,8 +10,12 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
-import android.util.Log;
+import android.text.TextUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * 图片工具类
@@ -185,18 +189,19 @@ public class ImgUtil {
      * @param preH      预览view高度
      * @return
      */
+    @Deprecated
     public static Bitmap Masic(Bitmap bitmap, int zoneWidth, Rect rect, int preW, int preH) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
+
         float wScale = w / (float) preW;  //屏幕坐标和图片坐标的缩放比例
         float hScale = h / (float) preH;
 
         LogUtil.e("masic----->", "缩放比例: wScale:" + wScale + " hScale" + hScale);
 
         Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-
-        Canvas canvas = new Canvas(newBitmap);
         Paint paint = new Paint();
+        Canvas canvas = new Canvas(newBitmap);
         int left = (int) (rect.left * wScale);
         int top = (int) (rect.top * hScale);
         int right = (int) (rect.right * wScale);
@@ -224,7 +229,43 @@ public class ImgUtil {
      * @param preH      预览view高度
      * @return
      */
+    @Deprecated
     public static Bitmap Masic(Bitmap bitmap, int zoneWidth, int preW, int preH) {
         return Masic(bitmap, zoneWidth, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), preW, preH);
+    }
+
+
+
+
+
+    /**
+     * 获取图片文件信息
+     *
+     * @param path
+     * @return
+     */
+    public static String getExif(String path) {
+        StringBuffer stringBuffer = new StringBuffer();
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+
+            String TAG_DATETIME = exifInterface.getAttribute(ExifInterface.TAG_DATETIME);
+            String TAG_IMAGE_LENGTH = exifInterface.getAttribute(ExifInterface.TAG_IMAGE_LENGTH);
+            String TAG_IMAGE_WIDTH = exifInterface.getAttribute(ExifInterface.TAG_IMAGE_WIDTH);
+
+            File file = new File(path);
+            if (TextUtils.isEmpty(TAG_DATETIME)) {
+                TAG_DATETIME = TimeUtils.pareTime(file.lastModified());
+            }
+            stringBuffer.append("拍摄时间:").append(TAG_DATETIME).append("\n")
+                    .append("文件大小:").append(file.length() / 1024f / 1024f).append("M").append("\n")
+                    .append("像素:" + TAG_IMAGE_LENGTH + "x" + TAG_IMAGE_WIDTH).append("\n")
+                    .append("拍摄路径:" + path);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuffer.toString();
     }
 }
