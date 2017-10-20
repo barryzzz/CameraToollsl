@@ -13,8 +13,10 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
+import com.example.lsl.cameratoollsl.utils.LogUtil;
 
 /**
+ * 马赛克view
  * Created by Administrator on 2017/10/19.
  */
 
@@ -65,16 +67,11 @@ public class MasicPreView extends ImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawCircle(canvas);
+        drawMasic(canvas);
     }
 
-
-    private void drawCircle(Canvas canvas) {
-//        canvas.drawCircle(centerX, centerY, raduis, mPaint);
-
+    private void drawMasic(Canvas canvas) {
         canvas.drawRect(mRect, mPaint);
-
-//        canvas.restore();
     }
 
     @Override
@@ -112,14 +109,33 @@ public class MasicPreView extends ImageView {
         int right = (int) (left + raduis);
         int bottom = (int) (top + raduis);
 
-        mRect = new Rect(left, top, right, bottom);
-        mBitmap = ImgUtil.Masic(mBitmap, 10, mRect);
+        LogUtil.e("masic---->", "viewW:" + viewW + "viewH:" + viewH);
+        mRect.left = left;
+        mRect.top = top;
+        mRect.right = right;
+        mRect.bottom = bottom;
+        LogUtil.e("masic---->", "点击矩阵:" + mRect.toString());
+        mBitmap = ImgUtil.Masic(mBitmap, 10, mRect, viewW, viewH);
         setImageBitmap(mBitmap);
         invalidate();
     }
 
+    /**
+     * 设置bitmap数据
+     *
+     * @param data
+     */
     public void setBitmapData(Bitmap data) {
         this.mBitmap = data;
         setImageBitmap(data);
+    }
+
+    /**
+     * 获取bitmap数据
+     *
+     * @return
+     */
+    public Bitmap getBitmapData() {
+        return mBitmap;
     }
 }

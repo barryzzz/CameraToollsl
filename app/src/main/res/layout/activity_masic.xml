@@ -2,20 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+    >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:alpha="0.6"
-        android:background="#acacac">
-
-        <Button
-            android:id="@+id/masic_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="保存"/>
-    </LinearLayout>
 
     <com.example.lsl.cameratoollsl.widget.MasicPreView
         android:id="@+id/masic_img"
@@ -24,5 +12,21 @@
         android:layout_centerInParent="true"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:alpha="0.6"
+        android:background="#acacac"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <Button
+            android:onClick="doSave"
+            android:id="@+id/masic_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="保存"/>
+    </LinearLayout>
 
 </RelativeLayout>

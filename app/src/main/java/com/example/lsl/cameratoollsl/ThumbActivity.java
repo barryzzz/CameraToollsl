@@ -43,6 +43,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
 
     private final int CROP_CODE = 1000;
     private final int SHOW_IMG = 1003;
+    private final int MASIC_CODE = 1002;
 
 
     @Override
@@ -178,9 +179,10 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
 //                        mHandler.sendEmptyMessage(SHOW_IMG);
 //                    }
 //                }).start();
+                if (path == null) return;
                 Intent intent1 = new Intent(this, MasicActivity.class);
                 intent1.putExtra("path", path);
-                startActivity(intent1);
+                startActivityForResult(intent1, MASIC_CODE);
                 break;
         }
     }
@@ -194,17 +196,18 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 case CROP_CODE:
                     showImg();
                     break;
+                case MASIC_CODE:
+                    showImg();
+                    break;
             }
         }
-    }
+        if (path == null) return;    }
 
     /**
      * 显示图片
      */
     private void showImg() {
-//        Bitmap bitmap = ImgUtil.getThumbBitmap(path, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
         Bitmap bitmap = BitmapFactory.decodeFile(path);
-//        bitmap = ImgUtil.getScale(bitmap, ScreenUtils.getScreenWidth(this), ScreenUtils.getScreenHeight(this));
         mImageView.setImageBitmap(bitmap);
     }
 

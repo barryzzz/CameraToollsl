@@ -11,6 +11,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.media.ThumbnailUtils;
+import android.util.Log;
 
 /**
  * 图片工具类
@@ -180,20 +181,26 @@ public class ImgUtil {
      * @param bitmap    源图像
      * @param zoneWidth
      * @param rect      马赛克区域
+     * @param preW      预览view宽度
+     * @param preH      预览view高度
      * @return
      */
-    public static Bitmap Masic(Bitmap bitmap, int zoneWidth, Rect rect) {
+    public static Bitmap Masic(Bitmap bitmap, int zoneWidth, Rect rect, int preW, int preH) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
+        float wScale = w / (float) preW;  //屏幕坐标和图片坐标的缩放比例
+        float hScale = h / (float) preH;
+
+        LogUtil.e("masic----->", "缩放比例: wScale:" + wScale + " hScale" + hScale);
 
         Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
 
         Canvas canvas = new Canvas(newBitmap);
         Paint paint = new Paint();
-        int left = rect.left;
-        int top = rect.top;
-        int right = rect.right;
-        int bottom = rect.bottom;
+        int left = (int) (rect.left * wScale);
+        int top = (int) (rect.top * hScale);
+        int right = (int) (rect.right * wScale);
+        int bottom = (int) (rect.bottom * hScale);
         //马赛克算法
         for (int i = left; i < right; i += zoneWidth) {
             for (int j = top; j < bottom; j += zoneWidth) {
@@ -201,6 +208,7 @@ public class ImgUtil {
                 paint.setColor(color);
                 int gridRight = Math.min(w, i + zoneWidth);
                 int gridBottom = Math.min(h, j + zoneWidth);
+                LogUtil.e("masic----->", "打码矩阵: left:" + i + " top:" + j + " right:" + gridRight + " bottom:" + gridBottom);
                 canvas.drawRect(i, j, gridRight, gridBottom, paint);
             }
         }
@@ -212,9 +220,11 @@ public class ImgUtil {
      *
      * @param bitmap
      * @param zoneWidth 马赛克方块的大小
+     * @param preW      预览view宽度
+     * @param preH      预览view高度
      * @return
      */
-    public static Bitmap Masic(Bitmap bitmap, int zoneWidth) {
-        return Masic(bitmap, zoneWidth, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
+    public static Bitmap Masic(Bitmap bitmap, int zoneWidth, int preW, int preH) {
+        return Masic(bitmap, zoneWidth, new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()), preW, preH);
     }
 }
