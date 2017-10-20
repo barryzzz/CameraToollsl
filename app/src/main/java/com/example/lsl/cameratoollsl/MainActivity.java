@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mContext = this;
         iniView();
 
-
         initHandler();
 
         initData();
@@ -122,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCapturetextView = (TextView) findViewById(R.id.capture_area);
         mThumbimageView = (ImageView) findViewById(R.id.thumb);
         mTakePickbutton = (Button) findViewById(R.id.takepick);
-
 
         mThumbimageView.setOnClickListener(this);
         mTakePickbutton.setOnClickListener(this);
@@ -230,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * 拍照
+     * 对焦拍照
      */
     private void takePicture() {
         mCamera.autoFocus(new Camera.AutoFocusCallback() {
