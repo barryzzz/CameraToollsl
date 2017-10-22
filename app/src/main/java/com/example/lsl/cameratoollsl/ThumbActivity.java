@@ -19,11 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.lsl.cameratoollsl.utils.FileUtils;
 import com.example.lsl.cameratoollsl.utils.ImgUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 public class ThumbActivity extends AppCompatActivity implements View.OnClickListener {
     private ImageView mImageView;
@@ -42,6 +40,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     private final int CROP_CODE = 1000;
     private final int SHOW_IMG = 1003;
     private final int MASIC_CODE = 1002;
+    private final int ADDTXT_CODE = 1004;
 
 
     @Override
@@ -109,18 +108,14 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(ThumbActivity.this, "文本不能为空", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap bitmap = ImgUtil.addText(ThumbActivity.this, BitmapFactory.decodeFile(path), addtxt); //添加文本
-                        try {
-                            FileUtils.saveFile(bitmap, new File(path)); //重新保存
-                            mHandler.sendEmptyMessage(SHOW_IMG); //通知更新
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                Intent intent_add = new Intent(this, AddTextActivity.class);
+                intent_add.putExtra("path", path);
+                intent_add.putExtra("txt", addtxt);
+                startActivityForResult(intent_add, ADDTXT_CODE);
+
+                mEditText.getText().clear();
+                mLinearLayout.setVisibility(View.GONE);
+
 
                 break;
         }
@@ -141,7 +136,9 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
                 builder.show();
                 break;
             case 1:
+                if (TextUtils.isEmpty(path)) return;
                 mLinearLayout.setVisibility(View.VISIBLE);
+
                 break;
             case 2:
                 BitmapFactory.Options options = new BitmapFactory.Options();
@@ -177,9 +174,8 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case CROP_CODE:
-                    showImg();
-                    break;
                 case MASIC_CODE:
+                case ADDTXT_CODE:
                     showImg();
                     break;
             }

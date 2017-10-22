@@ -34,6 +34,9 @@
         <activity
             android:name=".MasicActivity"
             android:theme="@style/FullscreenTheme"/>
+        <activity
+            android:name=".AddTextActivity"
+            android:theme="@style/FullscreenTheme"/>
     </application>
 
 </manifest>

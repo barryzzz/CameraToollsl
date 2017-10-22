@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onAutoFocus(boolean b, Camera camera) {
                 isFocus = b;
-                if (b) {
+                if (!b) {
                     mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] bytes, Camera camera) {
