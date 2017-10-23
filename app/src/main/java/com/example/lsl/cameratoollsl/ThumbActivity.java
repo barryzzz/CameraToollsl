@@ -115,7 +115,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
 
                 mEditText.getText().clear();
                 mLinearLayout.setVisibility(View.GONE);
-
+                mTextView.setVisibility(View.VISIBLE);
 
                 break;
         }
@@ -138,6 +138,7 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
             case 1:
                 if (TextUtils.isEmpty(path)) return;
                 mLinearLayout.setVisibility(View.VISIBLE);
+                mTextView.setVisibility(View.GONE);
 
                 break;
             case 2:
