@@ -145,8 +145,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "设备没有可用相机", Toast.LENGTH_LONG).show();
             return;
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,}, 1000);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+
         } else {
             try {
                 mCamera = CameraUtil.getCamera();
@@ -399,7 +402,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     setCameraParams();
                 } else {
                     //faild
-                    Toast.makeText(mContext, "没有授予相机权限,请到程序列表中进行授权", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "没有授予相机权限,请授权!", Toast.LENGTH_SHORT).show();
+                }
+                if (grantResults.length > 2 && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    //success write file
+                } else {
+                    //  faild
+                    Toast.makeText(mContext, "程序没有读写权限,请授权!", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
