@@ -18,7 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
@@ -171,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Camera.Parameters parameters = mCamera.getParameters();
         //设置图片和预览方向
-        int degree = getCameraDisplayOrientation(1);
+        int degree = CameraUtil.getCameraDisplayOrientation(mContext, 1);
         mCamera.setDisplayOrientation(degree);//预览画面翻转
         parameters.setRotation(degree); //输出的图片翻转
 
@@ -194,41 +193,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCamera.startPreview();
     }
 
-    /**
-     * 预览和图片方向
-     *
-     * @param cameraId 启动的相机编号
-     * @return
-     */
-    private int getCameraDisplayOrientation(int cameraId) {
-        android.hardware.Camera.CameraInfo info =
-                new android.hardware.Camera.CameraInfo();
-        android.hardware.Camera.getCameraInfo(cameraId, info);
-        int rotation = judgeScreenOrientation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-        }
-        int result;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360;
-        }
-        return result;
-    }
 
     /**
      * 对焦拍照
@@ -366,10 +330,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPreView.setCropMode(CameraPreView.CropMode.CIRCLE);
                 break;
         }
-    }
-
-    private int judgeScreenOrientation() {
-        return getWindowManager().getDefaultDisplay().getRotation();
     }
 
 
