@@ -7,10 +7,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import com.example.lsl.cameratoollsl.utils.LogUtil;
 import com.example.lsl.cameratoollsl.utils.ScreenUtils;
 
 /**
@@ -23,7 +25,7 @@ public class TextPreView extends ImageView {
     private String txt = "我是移动文字";
 
 
-    private Paint mPaint;
+    private TextPaint mPaint;
     private float txtX, txtY; //文字的坐标
     private int viewH, viewW; //预览界面大小
     private int mBitmapW, mBitmapH;
@@ -51,12 +53,11 @@ public class TextPreView extends ImageView {
     }
 
     private void init() {
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setDither(true); //采集清晰点
-        mPaint.setFilterBitmap(true); //过滤
+        mPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setColor(Color.RED);
-        mPaint.setTextSize(ScreenUtils.dp2px(mContext, 30));
-
+        mPaint.setTextAlign(Paint.Align.CENTER);
+        mPaint.setTextSize(ScreenUtils.sp2px(mContext, 30));
+        LogUtil.e("info---->", "textSize:" + ScreenUtils.sp2px(mContext, 30));
         mBoundsRect = new Rect();
     }
 
@@ -111,38 +112,8 @@ public class TextPreView extends ImageView {
 
     private void drawText(Canvas canvas, String text) {
         mPaint.getTextBounds(txt, 0, text.length(), mBoundsRect);
-//        checkLimitMove();
+        txtY = txtY - (mPaint.descent() + mPaint.ascent()) / 2; //计算出基准线
         canvas.drawText(txt, txtX, txtY, mPaint);
-    }
-
-    /**
-     * 检查边界
-     */
-    private void checkLimitMove() {
-        int diff = mBoundsRect.left - mLimitRect.left;
-        if (diff < 0) {
-            mBoundsRect.left -= diff;
-            mBoundsRect.right -= diff;
-            txtX -= diff;
-        }
-        diff = mBoundsRect.right - mLimitRect.right;
-        if (diff > 0) {
-            mBoundsRect.left -= diff;
-            mBoundsRect.right -= diff;
-            txtX -= diff;
-        }
-        diff = mBoundsRect.top - mLimitRect.top;
-        if (diff < 0) {
-            mBoundsRect.top -= diff;
-            mBoundsRect.bottom -= diff;
-            txtY -= diff;
-        }
-        diff = mBoundsRect.bottom - mLimitRect.bottom;
-        if (diff > 0) {
-            mBoundsRect.top -= diff;
-            mBoundsRect.bottom -= diff;
-            txtY -= diff;
-        }
     }
 
 
@@ -182,12 +153,20 @@ public class TextPreView extends ImageView {
      * 合并图片和文字数据
      */
     public Bitmap saveTxt() {
-        Bitmap bitmap = mBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap bitmap = mBitmap.copy(mBitmap.getConfig(), true);
+//        Bitmap bitmap = Bitmap.createBitmap(mBitmapW, mBitmapH, mBitmap.getConfig());
+
         Canvas canvas = new Canvas(bitmap);
         float wScale = (float) mBitmapW / viewW;
         float hScale = (float) mBitmapH / viewH;
+//        canvas.drawBitmap(mBitmap, 0, 0, null);
+
+        LogUtil.e("info--->", "前txtX:" + txtX + " txtY:" + txtY + " size:" + mPaint.getTextSize());
+
         txtX = txtX * wScale;
         txtY = txtY * hScale;
+        LogUtil.e("info--->", "后txtX:" + txtX + " txtY:" + txtY);
+
         canvas.drawText(txt, txtX, txtY, mPaint);
         return bitmap;
     }
