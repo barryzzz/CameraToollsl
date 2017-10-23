@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -30,8 +29,6 @@ public class TextPreView extends ImageView {
     private int viewH, viewW; //预览界面大小
     private int mBitmapW, mBitmapH;
 
-    private Rect mBoundsRect;//文字区域
-    private Rect mLimitRect; //移动限制区域
 
     private Bitmap mBitmap;
 
@@ -58,7 +55,6 @@ public class TextPreView extends ImageView {
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setTextSize(ScreenUtils.sp2px(mContext, 30));
         LogUtil.e("info---->", "textSize:" + ScreenUtils.sp2px(mContext, 30));
-        mBoundsRect = new Rect();
     }
 
     @Override
@@ -71,7 +67,6 @@ public class TextPreView extends ImageView {
         txtX = viewW / 2f;
         txtY = viewH / 2f;
 
-        mLimitRect = new Rect(0, 0, viewW, viewH);
     }
 
     @Override
@@ -111,9 +106,8 @@ public class TextPreView extends ImageView {
     }
 
     private void drawText(Canvas canvas, String text) {
-        mPaint.getTextBounds(txt, 0, text.length(), mBoundsRect);
         txtY = txtY - (mPaint.descent() + mPaint.ascent()) / 2; //计算出基准线
-        canvas.drawText(txt, txtX, txtY, mPaint);
+        canvas.drawText(text, txtX, txtY, mPaint);
     }
 
 
@@ -145,7 +139,6 @@ public class TextPreView extends ImageView {
      */
     public void setTxT(String txt) {
         this.txt = txt;
-        mPaint.getTextBounds(this.txt, 0, this.txt.length(), mBoundsRect);
         invalidate();
     }
 
@@ -154,19 +147,15 @@ public class TextPreView extends ImageView {
      */
     public Bitmap saveTxt() {
         Bitmap bitmap = mBitmap.copy(mBitmap.getConfig(), true);
-//        Bitmap bitmap = Bitmap.createBitmap(mBitmapW, mBitmapH, mBitmap.getConfig());
 
         Canvas canvas = new Canvas(bitmap);
         float wScale = (float) mBitmapW / viewW;
         float hScale = (float) mBitmapH / viewH;
-//        canvas.drawBitmap(mBitmap, 0, 0, null);
-
-        LogUtil.e("info--->", "前txtX:" + txtX + " txtY:" + txtY + " size:" + mPaint.getTextSize());
 
         txtX = txtX * wScale;
         txtY = txtY * hScale;
-        LogUtil.e("info--->", "后txtX:" + txtX + " txtY:" + txtY);
 
+        mPaint.setTextSize(mPaint.getTextSize() * Math.min(wScale, hScale)); //缩放处理
         canvas.drawText(txt, txtX, txtY, mPaint);
         return bitmap;
     }
