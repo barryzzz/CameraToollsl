@@ -8,6 +8,9 @@ import android.view.MotionEvent;
  */
 
 public class ViewUtil {
+    private ViewUtil() {
+        /* cannot be instantiated */
+    }
 
     /**
      * 计算两点之间的距离

@@ -9,6 +9,9 @@ import android.content.SharedPreferences;
  */
 
 public class SPUtils {
+    private SPUtils(){
+        /* cannot be instantiated */
+    }
     /**
      * 保存最后一次拍照照片存储路径
      *

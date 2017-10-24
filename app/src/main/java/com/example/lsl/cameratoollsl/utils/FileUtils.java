@@ -15,7 +15,9 @@ import java.io.IOException;
  */
 
 public class FileUtils {
-
+    private FileUtils(){
+        /* cannot be instantiated */
+    }
     /**
      * 保存图片
      *
@@ -32,7 +34,7 @@ public class FileUtils {
 //        FileOutputStream fileOutputStream = new FileOutputStream(file);
 
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        Log.w("info--->", "图片的宽高:" + bitmap.getWidth() + "---:" + bitmap.getHeight());
+        LogUtil.i("info--->", "图片的宽高:" + bitmap.getWidth() + "---:" + bitmap.getHeight());
         //图像翻转
 //        bitmap = ImgUtil.getScale(bitmap, 1080, 1650);
 

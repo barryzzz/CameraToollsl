@@ -19,6 +19,9 @@ import java.util.List;
  */
 
 public class CameraUtil {
+    private CameraUtil(){
+        /* cannot be instantiated */
+    }
     /**
      * 判断是否有相机
      *

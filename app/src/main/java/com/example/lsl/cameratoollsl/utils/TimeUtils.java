@@ -9,6 +9,9 @@ import java.util.Date;
  */
 
 public class TimeUtils {
+    private TimeUtils(){
+        /* cannot be instantiated */
+    }
     public static String pareTime(long time, String format) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.format(new Date(time));

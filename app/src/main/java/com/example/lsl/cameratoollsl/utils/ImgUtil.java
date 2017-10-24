@@ -23,6 +23,9 @@ import java.io.IOException;
  */
 
 public class ImgUtil {
+    private ImgUtil(){
+        /* cannot be instantiated */
+    }
 
     /**
      * 获取一个圆形区域

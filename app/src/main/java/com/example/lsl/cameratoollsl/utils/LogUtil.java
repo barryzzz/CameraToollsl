@@ -10,6 +10,9 @@ import com.example.lsl.cameratoollsl.BuildConfig;
  */
 
 public class LogUtil {
+    private LogUtil(){
+        /* cannot be instantiated */
+    }
     public static void e(String tag, String str) {
         if (BuildConfig.DEBUG)
             Log.e(tag, str);
