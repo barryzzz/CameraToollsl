@@ -88,12 +88,10 @@ public class CameraPreView extends SurfaceView {
         raduis = CropWidth;
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int w = MeasureSpec.getSize(widthMeasureSpec);
-        int h = MeasureSpec.getSize(heightMeasureSpec);
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
 
         viewW = w - getPaddingLeft() - getPaddingRight();
         viewH = h - getPaddingTop() - getPaddingBottom();
@@ -106,11 +104,6 @@ public class CameraPreView extends SurfaceView {
         mLimitReact = new Rect(0, 0, (int) viewW, (int) viewH);
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        setLayout();
-    }
 
     /**
      * 设置布局位置
@@ -282,6 +275,7 @@ public class CameraPreView extends SurfaceView {
         public int getId() {
             return ID;
         }
+
     }
 
     /**
@@ -422,4 +416,6 @@ public class CameraPreView extends SurfaceView {
     public interface onTouchFocusListener {
         void focus(Point point);
     }
+
+
 }

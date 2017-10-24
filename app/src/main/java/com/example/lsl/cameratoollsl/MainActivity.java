@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initHandler();
 
         initData();
+
     }
 
     private void initData() {
@@ -325,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPreView.setCropMode(CameraPreView.CropMode.SQUARE);
                 break;
             case 2:
-                mPreView.setCropMode(CameraPreView.CropMode.RECTANGLE);
+                mPreView.setCropMode(CameraPreView.CropMode.SQUARE);
                 break;
             case 3:
                 mPreView.setCropMode(CameraPreView.CropMode.CIRCLE);
@@ -391,5 +392,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mCamera.startPreview();
         }
     }
+
 
 }
