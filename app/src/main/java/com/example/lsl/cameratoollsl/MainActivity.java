@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mPreView.setCropMode(CameraPreView.CropMode.SQUARE);
                 break;
             case 2:
-                mPreView.setCropMode(CameraPreView.CropMode.SQUARE);
+                mPreView.setCropMode(CameraPreView.CropMode.RECTANGLE);
                 break;
             case 3:
                 mPreView.setCropMode(CameraPreView.CropMode.CIRCLE);
