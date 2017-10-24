@@ -30,8 +30,8 @@ public class ThumbActivity extends AppCompatActivity implements View.OnClickList
     private String path;
     private final String TAG = "thumb--->";
 
-    //添加文本
-    private LinearLayout mLinearLayout;
+
+    private LinearLayout mLinearLayout;//添加文本
     private EditText mEditText;
     private Button mButton;
     private Handler mHandler;

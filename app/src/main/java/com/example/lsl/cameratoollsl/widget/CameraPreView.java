@@ -106,7 +106,7 @@ public class CameraPreView extends SurfaceView {
 
 
     /**
-     * 设置布局位置
+     * 设置位置
      */
     private void setLayout() {
         if (CropWidth <= 0 || CropHeigth <= 0 || raduis <= 0) {

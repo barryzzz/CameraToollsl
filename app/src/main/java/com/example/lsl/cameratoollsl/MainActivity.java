@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView mThumbimageView;    //缩略图
     private Button mTakePickbutton;  //拍照按钮
 
-    //预览界面
-    private CameraPreView mPreView;
 
-    //相机对象
-    private Camera mCamera;
+    private CameraPreView mPreView;  //预览界面
+
+
+    private Camera mCamera;//相机对象
     private SurfaceHolder mHolder;
 
     private Context mContext;
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 LogUtil.e(TAG, "手动对焦成功" + success);
                 Camera.Parameters param = mCamera.getParameters();
                 if (CameraUtil.isAutoFocusSuppored(param)) {
-                    param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置会自动对焦模式
+                    param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); //设置对焦模式
                     mCamera.cancelAutoFocus();
                     mCamera.setParameters(param);
                 }
